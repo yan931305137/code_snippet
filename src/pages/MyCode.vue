@@ -1,43 +1,43 @@
 <template>
-  <div class="editor">
-    <div class="container">
-      <div class="monaco-container">
-        <span>代码片段</span>
-        <div class="select">
-          <el-select v-model="value" clearable placeholder="纯文本">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </div>
-        <MonacoEditor class="monaco_editor" @change="codeChange" v-model="code" language="go"></MonacoEditor>
+  <div class="containers">
+    <div class="monaco-container">
+      <span class="head">我的代码</span>
+      <hr class="hr"/>
+      <span>代码片段</span>
+      <div class="select">
+        <el-select v-model="value" clearable placeholder="纯文本">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </div>
-      <div class="md-container">
-        <el-collapse v-model="activeNames" @change="handleChange">
-          <el-collapse-item title="更多设置" class="el-collapse-item">
-            <div class="input-row">
-              <el-input class="input-item" placeholder="最大40个字" v-model="input1">
-                <template slot="prepend">标题</template>
-              </el-input>
-              <el-input class="input-item" placeholder="支持自定义标签" v-model="input2">
-                <template slot="prepend">标签</template>
-              </el-input>
-              <el-input class="input-item" placeholder="留空默认永久" v-model="input3">
-                <template slot="prepend">过期时间</template>
-              </el-input>
-            </div>
-            <MdEditor class="md_editor"></MdEditor>
-          </el-collapse-item>
-        </el-collapse>
-        <div class="button">
-          <el-button>公开</el-button>
-          <el-button>加密</el-button>
-          <el-button>私人</el-button>
-          <el-button class="submit">提交</el-button>
-        </div>
+      <MonacoEditor class="monaco_editor" @change="codeChange" v-model="code" language="go"></MonacoEditor>
+    </div>
+    <div class="md-container">
+      <el-collapse v-model="activeNames" @change="handleChange">
+        <el-collapse-item title="更多设置" class="el-collapse-item">
+          <div class="input-row">
+            <el-input class="input-item" placeholder="最大40个字" v-model="input1">
+              <template slot="prepend">标题</template>
+            </el-input>
+            <el-input class="input-item" placeholder="支持自定义标签" v-model="input2">
+              <template slot="prepend">标签</template>
+            </el-input>
+            <el-input class="input-item" placeholder="留空默认永久" v-model="input3">
+              <template slot="prepend">过期时间</template>
+            </el-input>
+          </div>
+          <MdEditor class="md_editor"></MdEditor>
+        </el-collapse-item>
+      </el-collapse>
+      <div class="button">
+        <el-button>公开</el-button>
+        <el-button>加密</el-button>
+        <el-button>私人</el-button>
+        <el-button class="submit">提交</el-button>
       </div>
     </div>
   </div>
@@ -86,19 +86,15 @@ export default {
 </script>
 
 <style>
-.editor {
-  margin: 100px 0;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: center;
-}
-
-.container {
+.containers {
   width: 1100px;
-  margin: 0 auto;
+  margin: 70px auto;
   display: flex;
   flex-direction: column;
+}
+
+.hr {
+  margin: 30px 0;
 }
 
 .monaco-container,
@@ -110,8 +106,9 @@ export default {
 .monaco-container {
 }
 
-.monaco_editor{
+.monaco_editor {
   clear: both;
+  margin-top: 20px;
 }
 
 .md-container {
@@ -119,9 +116,11 @@ export default {
 
 .select{
   float: right;
-  display: block;
-  padding: 2px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
+
 .input-row {
   display: flex;
   padding: 0;
@@ -137,17 +136,19 @@ export default {
   margin-right: 0;
 }
 
-.button{
+.button {
   margin-top: 10px;
 }
-.submit{
+
+.submit {
   float: right;
   width: 150px;
 }
-.el-collapse-item{
+
+.el-collapse-item {
   width: 100%;
 }
-/* 设置MdEditor的样式 */
+
 .md_editor {
   height: 100%;
   width: 100%;
