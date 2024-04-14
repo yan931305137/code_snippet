@@ -26,8 +26,9 @@ export default {
 
 <style>
 .el-card {
+  margin: 10px;
   padding: 10px;
-  margin: 10px 10px 20px;
+  margin-bottom: 20px; /* Add margin bottom to create space between cards */
 }
 
 .time {

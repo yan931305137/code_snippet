@@ -4,7 +4,16 @@
     <!-- Using the slider component -->
     <slider ref="slider" :options="options" @slide='slide' @tap='onTap' @init='onInit'>
       <!-- slideritem wrapped package with the components you need -->
-      <slideritem v-for="(item,index) in someList" :key="index" :style="item.style">{{item.html}}</slideritem>
+      <slideritem v-for="(item,index) in someList" :key="index" :style="item.style">
+        <el-card class="slider-card" :body-style="{ padding: '0px' }">
+          <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image" alt="">
+          <div style="padding: 14px;">
+            <div class="bottom clearfix">
+              <time class="time">{{ currentDate }}</time>
+            </div>
+          </div>
+        </el-card>
+      </slideritem>
       <!-- Customizable loading -->
       <div slot="loading">loading...</div>
     </slider>
@@ -57,3 +66,9 @@ export default {
   }
 }
 </script>
+<style>
+.slider-card{
+  width: 90%;
+  height: 90%;
+}
+</style>

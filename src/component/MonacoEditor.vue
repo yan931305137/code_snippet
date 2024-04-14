@@ -1,5 +1,5 @@
 <template>
-  <div class="main" ref="main"></div>
+  <div class="main-monaco" ref="main"></div>
 </template>
 
 <script>
@@ -51,8 +51,8 @@ export default {
         emptySelectionClipboard: false, // 空选择剪切板
         selectionClipboard: false, // 选择剪切板
         automaticLayout: true, // 自动布局
-        codeLens: false, // 代码镜头
-        scrollBeyondLastLine: true, // 滚动完最后一行后再滚动一屏幕
+        codeLens: true, // 代码镜头
+        scrollBeyondLastLine: false, // 滚动完最后一行后再滚动一屏幕
         colorDecorators: true, // 颜色装饰器
         accessibilitySupport: 'on', // 辅助功能支持"auto" | "off" | "on"
         lineNumbers: 'on', // 行号 取值： "on" | "off" | "relative" | "interval" | function
@@ -89,9 +89,10 @@ export default {
 </script>
 
 <style>
-.main{
+.main-monaco{
   height:calc(100vh - 500px);
   border: #cccccc 0.5px solid;
   overflow: hidden !important;
+  width: 100%;
 }
 </style>
