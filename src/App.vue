@@ -71,10 +71,10 @@
             <div class="single-widge-home">
               <h3 class="mb-4">贡献者</h3>
               <div class="feed">
-                <img src="static/assets/images/feed1.jpg" alt="feed">
-                <img src="static/assets/images/feed2.jpg" alt="feed">
-                <img src="static/assets/images/feed3.jpg" alt="feed">
-                <img src="static/assets/images/feed4.jpg" alt="feed">
+                <img src="/static/assets/images/feed1.jpg" alt="feed">
+                <img src="/static/assets/images/feed2.jpg" alt="feed">
+                <img src="/static/assets/images/feed3.jpg" alt="feed">
+                <img src="/static/assets/images/feed4.jpg" alt="feed">
               </div>
             </div>
           </div>
@@ -86,18 +86,19 @@
         <div class="row">
           <div class="col-lg-8 col-md-6">
             <span>
-              &copy;2024 All rights reserved
+              &copy;2024 Code_Snippet | 辽ICP备XXXXXXXX号-XX
+              <br/>
               <i class="fa fa-heart-o" aria-hidden="true"></i>by
-              <a href="https://www.XXXX.com" target="_blank">ACM项目部</a>
+              <a href="https://dluacm.cn" target="_blank">ACM项目部</a>
             </span>
           </div>
           <div class="col-lg-4 col-md-6">
             <div class="social-icons">
               <ul>
-                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                <li><a href="#"><i class="fa fa-dribbble"></i></a></li>
-                <li><a href="#"><i class="fa fa-behance"></i></a></li>
+                <li><a href="#"><i class="fa fa-github"></i></a></li>
+                <li><a href="#"><i class="fa fa-qq"></i></a></li>
+                <li><a href="#"><i class="fa fa-weixin"></i></a></li>
+                <li><a href="#"><i class="fa fa-weibo"></i></a></li>
               </ul>
             </div>
           </div>
@@ -106,10 +107,10 @@
     </div>
   </footer>
   <div class="support" @click="">
-    <svg t="1712848740764" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="978" width="100" height="100"><path d="M154.265344 408.822012a408.822012 408.822012 0 0 0 408.822012 408.822011 51.102751 51.102751 0 1 0 0-102.205503 306.616509 306.616509 0 1 1 306.616509-306.616508 298.797788 298.797788 0 0 1-58.512651 180.239404 51.102751 51.102751 0 0 0 82.63315 60.147939A398.499256 398.499256 0 0 0 971.909368 408.822012 408.822012 408.822012 0 1 0 154.265344 408.822012z m526.869368 129.187755a153.308254 153.308254 0 0 1-216.880077-2.248521 51.102751 51.102751 0 0 1 73.076934-71.543852 51.102751 51.102751 0 0 0 72.259291 0.766542 51.102751 51.102751 0 0 1 71.543852 73.076934zM239.402528 817.644023H256.470847a51.102751 51.102751 0 1 0 0-102.205503h-17.017216A187.39379 187.39379 0 0 0 52.059841 902.83231 119.222719 119.222719 0 0 0 171.282561 1022.055029h735.573004A51.102751 51.102751 0 0 0 971.909368 971.769922V970.952278a51.102751 51.102751 0 0 0-23.916088-43.284031l-144.109759-145.949458a51.102751 51.102751 0 1 0-72.719215 71.850469L796.575827 919.849526H171.333663A17.017216 17.017216 0 0 1 154.265344 902.83231C154.265344 855.817779 192.387997 817.644023 239.453631 817.644023z" fill="#000000" p-id="979"></path></svg>
+      <i class="fa fa-qrcode black"></i>
   </div>
-  <div class="scroll-to-top" v-show="isScrolled" @click="scrollToTop">
-    <svg t="1712848877765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1950" width="100" height="100"><path d="M871.765333 806.762667h95.722667a9.877333 9.877333 0 0 0 7.808-16l-436.053333-558.293334a39.466667 39.466667 0 0 0-62.293334 0l-436.053333 558.293334a9.856 9.856 0 0 0 7.786667 16h95.722666a20.032 20.032 0 0 0 15.616-7.573334l348.010667-445.845333 348.117333 445.866667c3.712 4.693333 9.536 7.552 15.616 7.552z" fill="#000000" p-id="1951"></path></svg>
+  <div class="scroll-to-top" v-show="isScrolled" @click="scrollToTop" >
+      <i class="fa fa-angle-up black"></i>
   </div>
 </div>
 </template>
@@ -226,5 +227,9 @@ ul li{
 .login:hover,
 .register:hover{
   background-color: #ff9902;
+}
+
+.black{
+  color: #000000;
 }
 </style>
