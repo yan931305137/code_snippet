@@ -51,12 +51,11 @@ export default {
 
 <style>
 .main{
-  height:calc(100vh - 500px);
   border: #cccccc 0.5px solid;
   overflow: hidden !important;
 }
 .md-editor{
-  height: 100%;
+  height:calc(100vh - 500px);
   overflow: auto !important;
 }
 </style>

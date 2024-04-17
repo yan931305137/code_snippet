@@ -28,9 +28,10 @@
                 <li :class="{ active: isRouteActive('/codes') }"><router-link to="/codes">代码库</router-link></li>
                 <li :class="{ active: isRouteActive('/my_code') }"><router-link to="/my_code">我的代码</router-link></li>
                 <li :class="{ active: isRouteActive('/my_favorite') }"><router-link to="/my_favorite">我的收藏</router-link></li>
+                <li :class="{ active: isRouteActive('/ai_know') }"><router-link to="/ai_know">AI知道</router-link></li>
                 <li class="menu-btn">
-                  <a href="#" class="login">登录</a>
-                  <a href="#" class="register">注册</a>
+                  <a class="login" @click="toggleDialog('login')">登录</a>
+                  <a class="register" @click="toggleDialog('register')">注册</a>
                 </li>
               </ul>
             </div>
@@ -39,8 +40,14 @@
       </div>
     </div>
   </header>
-  <!-- Header Area End -->
+  <div class="overlay" v-show="showDialog"></div>
 
+  <div class="loginOrRegisterContainer" v-show="showDialog"  >
+    <button class="close-btn" @click="closeDialog">关闭</button>
+    <login-or-register :showDialog="showDialog" :mode="dialogMode"></login-or-register>
+  </div>
+
+  <!-- Header Area End -->
   <router-view></router-view>
 
   <!-- Footer Area Starts -->
@@ -116,11 +123,17 @@
 </template>
 
 <script>
+import LoginOrRegister from '../src/component/LoginOrRegister.vue'
 export default {
   name: 'app',
+  components: {
+    LoginOrRegister
+  },
   data () {
     return {
-      isScrolled: false
+      showDialog: false,
+      isScrolled: false,
+      dialogMode: '' // 添加对话框模式
     }
   },
   mounted () {
@@ -130,8 +143,15 @@ export default {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
+    closeDialog () {
+      this.showDialog = false
+    },
+    toggleDialog (mode) {
+      this.dialogMode = mode
+      this.showDialog = !this.showDialog
+    },
     handleScroll () {
-      this.isScrolled = window.scrollY > 100 // Show button when scrolled down 100px
+      this.isScrolled = window.scrollY > 100 // 滚动超过100像素时显示按钮
     },
     scrollToTop () {
       window.scrollTo({
@@ -145,7 +165,6 @@ export default {
   }
 }
 </script>
-
 
 <style>
 .logo-text{
@@ -231,5 +250,35 @@ ul li{
 
 .black{
   color: #000000;
+}
+.loginOrRegisterContainer {
+  z-index: 999;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+  z-index: 999; /* 确保遮罩层在最顶层 */
+}
+
+.close-btn {
+  position: absolute;
+  border: 0.5px solid #dddddd; ;
+  background-color: transparent;
+  color: #999999;
+  cursor: pointer;
+  z-index: 1000; /* 确保关闭按钮在遮罩层之上 */
+  top: -30px;
+  right: 0;
+}
+.close-btn:hover{
+  background-color: #ffffff;
 }
 </style>

@@ -4,6 +4,7 @@ import Home from '@/pages/Home'
 import Codes from '@/pages/Codes'
 import MyCode from '@/pages/MyCode'
 import MyFavorite from '@/pages/MyFavorite'
+import AiKnow from '@/pages/Aiknow'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/my_favorite',
       name: 'my_favorite',
       component: MyFavorite
+    },
+    {
+      path: '/ai_know',
+      name: 'ai_know',
+      component: AiKnow
     }
   ]
 })
