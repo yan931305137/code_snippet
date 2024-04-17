@@ -81,7 +81,6 @@ export default {
 </script>
 
 <style scoped>
-/* Add your scoped styles for the dialog here */
 .login-register-dialog {
   width: 450px;
   height: 330px;
@@ -97,17 +96,9 @@ export default {
   display: block;
 }
 
-.show-login-form .form-group {
-  display: block;
-}
-
 .show-login-form,
 .login-register-btn {
   width: 100%;
-}
-
-.form-group {
-  margin-bottom: 15px;
 }
 
 .login-register-btn {

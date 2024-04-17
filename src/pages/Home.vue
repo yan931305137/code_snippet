@@ -38,6 +38,9 @@ export default {
 </script>
 
 <style>
+.slider{
+  z-index: 0;
+}
 .top-container {
   display: flex;
   justify-content: space-between; /* Distribute items evenly */

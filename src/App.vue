@@ -1,12 +1,6 @@
 <template>
 <div>
-  <!-- Preloader Starts -->
-  <div class="preloader">
-    <div class="spinner"></div>
-  </div>
-  <!-- Preloader End -->
-
-  <!-- Header Area Starts -->
+  <!-- 头部导航栏 -->
   <header class="header-area single-page">
     <div class="header-top">
       <div class="container">
@@ -41,16 +35,16 @@
     </div>
   </header>
   <div class="overlay" v-show="showDialog"></div>
-
   <div class="loginOrRegisterContainer" v-show="showDialog"  >
     <button class="close-btn" @click="closeDialog">关闭</button>
     <login-or-register :showDialog="showDialog" :mode="dialogMode"></login-or-register>
   </div>
 
-  <!-- Header Area End -->
+  <!-- 中间页面区 -->
   <router-view></router-view>
 
-  <!-- Footer Area Starts -->
+
+  <!-- 底部栏 -->
   <footer class="footer-area section-padding">
     <div class="footer-widget">
       <div class="container">
@@ -113,6 +107,8 @@
       </div>
     </div>
   </footer>
+
+<!--  右下角小功能-->
   <div class="support" @click="">
       <i class="fa fa-qrcode black"></i>
   </div>
@@ -222,11 +218,11 @@ ul li{
   height: 51px;
   text-align: center;
 }
-.menul li:nth-child(-n+4).active {
+.menul li:nth-child(-n+5).active {
   border-bottom: 2px solid white;
   background-color: rgba(119, 119, 119, 0.10);
 }
-.menul li:nth-child(-n+4):hover {
+.menul li:nth-child(-n+5):hover {
   background-color: rgba(119, 119, 119, 0.10);
 }
 .menu-btn{
@@ -281,4 +277,5 @@ ul li{
 .close-btn:hover{
   background-color: #ffffff;
 }
+
 </style>
