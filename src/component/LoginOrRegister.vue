@@ -12,21 +12,21 @@
       <el-form-item>
         <el-row>
           <el-col :span="24">
-            <el-input :type="showLoginForm ? 'text' : 'password'" :id="showLoginForm ? 'username' : 'newUsername'" v-model="username" placeholder="账号"></el-input>
+            <el-input type="text" :id="showLoginForm ? 'username' : 'newUsername'" v-model="username" placeholder="账号"></el-input>
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item>
         <el-row>
           <el-col :span="24">
-            <el-input :type="showLoginForm ? 'password' : 'text'" :id="showLoginForm ? 'password' : 'newPassword'" v-model="password" placeholder="密码"></el-input>
+            <el-input type="password" :id="showLoginForm ? 'password' : 'newPassword'" v-model="password" placeholder="密码"></el-input>
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item>
         <el-row>
           <el-col :span="24">
-            <el-button class="login-register-btn" @click="showLoginForm ? login : register" type="primary">{{ showLoginForm ? '登录' : '注册' }}</el-button>
+            <el-button class="login-register-btn" @click="showLoginForm ? login() : register()" type="primary">{{ showLoginForm ? '登录' : '注册' }}</el-button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -42,6 +42,9 @@
 </template>
 
 <script>
+
+import {Message} from 'element-ui'
+
 export default {
   name: 'LoginOrRegister',
   props: ['showDialog', 'mode'], // 接受模式属性
@@ -65,13 +68,37 @@ export default {
     }
   },
   methods: {
-    login () {
-      // Your login logic here
-      console.log('Logging in...')
+    async login () {
+      try {
+        let res = await this.$api.login(this.username, this.password)
+        if (res.data.resultCode === 200) {
+          const token = 'token'
+          Message.success('登录成功')
+          // 存储token到浏览器
+          localStorage.setItem('eleToken', token)
+          this.$router.push('/')
+        } else {
+          Message.error(res.data.resultMsg)
+        }
+      } catch (error) {
+        Message.error('登录失败，请稍后重试')
+      }
     },
-    register () {
-      // Your register logic here
-      console.log('Registering...')
+    async register () {
+      try {
+        let res = await this.$api.register(this.newUsername, this.newPassword)
+        if (res.data.resultCode === 200) {
+          const token = 'token'
+          Message.success('登录成功')
+          // 存储token到浏览器
+          localStorage.setItem('eleToken', token)
+          this.$router.push('/')
+        } else {
+          Message.error(res.data.resultMsg)
+        }
+      } catch (error) {
+        Message.error('注册失败，请稍后重试')
+      }
     },
     toggleMode () {
       this.showLoginForm = !this.showLoginForm

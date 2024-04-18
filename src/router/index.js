@@ -37,3 +37,12 @@ export default new Router({
     }
   ]
 })
+
+// Router.before((to, from, next) => {
+//   let isLogin = !!localStorage.eleToken
+//   if (to.path === '/login' || to.path === '/register') {
+//     next()
+//   } else {
+//     isLogin ? next() : next('/login')
+//   }
+// })

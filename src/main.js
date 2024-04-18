@@ -18,6 +18,8 @@ import Prism from 'prismjs'
 import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress'
 import githubTheme from '@kangc/v-md-editor/lib/theme/github'
 import hljs from 'highlight.js'
+import api from '../src/api/index'
+Vue.prototype.$api = api
 
 import SlideVerify from 'vue-monoplasty-slide-verify'
 
