@@ -8,7 +8,7 @@ import {
 import router from '../router/index.js'  // 注意路径与文件名
 
 const service = axios.create({
-  baseURL: process.env.BASE_API, // api 的 base_url, url = base_url + request_url
+  baseURL: 'http://localhost:8099/api', // 修改为后端服务的端口号, // api 的 base_url, url = base_url + request_url
   timeout: 50000 // request timeout
 })
 
@@ -31,8 +31,8 @@ service.interceptors.request.use(
   config => {
     // 加载
     startLoading()
-    if (localStorage.eleToken) {
-      config.headers.Authorization = localStorage.eleToken
+    if (localStorage.token) {
+      config.headers.Authorization = localStorage.token
     }
     return config
   },
@@ -56,7 +56,7 @@ service.interceptors.response.use(
     if (status === 401) {
       Message.error('token值无效，请重新登录')
       // 清除token
-      localStorage.removeItem('eleToken')
+      localStorage.removeItem('token')
 
       // 页面跳转
       router.push('/')

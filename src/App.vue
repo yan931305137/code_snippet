@@ -23,10 +23,17 @@
                 <li :class="{ active: isRouteActive('/my_code') }"><router-link to="/my_code">我的代码</router-link></li>
                 <li :class="{ active: isRouteActive('/my_favorite') }"><router-link to="/my_favorite">我的收藏</router-link></li>
                 <li :class="{ active: isRouteActive('/ai_know') }"><router-link to="/ai_know">AI知道</router-link></li>
-                <li class="menu-btn">
+                <li v-if="!username" class="menu-btn">
                   <a class="login" @click="toggleDialog('login')">登录</a>
                   <a class="register" @click="toggleDialog('register')">注册</a>
                 </li>
+                <el-dropdown v-if="username" class="menu-username" @mouseover="Dropdown" @mouseout="noDropdown">
+                  <span>用户 : {{ username }}</span> <!-- 将用户名显示在菜单中 -->
+                    <el-dropdown-menu v-show="showDropdown" class="dropdown">
+                      <el-dropdown-item @click.native="logouts" class="dropdown-li">退出登录</el-dropdown-item>
+                      <el-dropdown-item @click.native="persionals" class="dropdown-li">个人中心</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
               </ul>
             </div>
           </div>
@@ -109,10 +116,10 @@
   </footer>
 
 <!--  右下角小功能-->
-  <div class="support" @click="">
+  <div class="support" @click.native="">
       <i class="fa fa-qrcode black"></i>
   </div>
-  <div class="scroll-to-top" v-show="isScrolled" @click="scrollToTop" >
+  <div class="scroll-to-top" v-show="isScrolled" @click.native="scrollToTop" >
       <i class="fa fa-angle-up black"></i>
   </div>
 </div>
@@ -120,6 +127,8 @@
 
 <script>
 import LoginOrRegister from '../src/component/LoginOrRegister.vue'
+import {Message, MessageBox} from 'element-ui'
+
 export default {
   name: 'app',
   components: {
@@ -129,16 +138,28 @@ export default {
     return {
       showDialog: false,
       isScrolled: false,
-      dialogMode: '' // 添加对话框模式
+      dialogMode: '', // 添加对话框模式
+      username: '',
+      showDropdown: false // 添加显示下拉框的状态
     }
   },
   mounted () {
+    this.getUsername()
     window.addEventListener('scroll', this.handleScroll)
   },
   destroyed () {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
+     // 页面挂载后立即发送请求获取用户名
+    async getUsername () {
+      try {
+        const res = await this.$api.getUsername() // 发送GET请求至后端接口
+        this.username = res.data.data // 假设后端返回的数据中包含用户名字段
+      } catch (error) {
+        console.error('获取用户名失败:', error) // 打印错误信息到控制台
+      }
+    },
     closeDialog () {
       this.showDialog = false
     },
@@ -155,6 +176,34 @@ export default {
         behavior: 'smooth'
       })
     },
+    Dropdown () {
+      this.showDropdown = true
+    },
+    noDropdown () {
+      this.showDropdown = false
+    },
+    logouts () {
+      MessageBox.confirm('确定退出登录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 执行退出登录操作
+        let res = await this.$api.exit()
+        if (res.data.code === 0) {
+          location.reload()
+          Message.success(res.data.msg)
+          localStorage.removeItem('token')
+        } else {
+          Message.error(res.data.msg)
+        }
+      }).catch(() => {
+        Message.info('取消退出登录')
+      })
+    },
+    persionals () {
+      // 跳转到个人中心页面
+    },
     isRouteActive (route) {
       return this.$route.path === route
     }
@@ -164,6 +213,7 @@ export default {
 
 <style>
 .logo-text{
+  width: 80px;
     color: #ffffff;
 }
 
@@ -226,6 +276,7 @@ ul li{
   background-color: rgba(119, 119, 119, 0.10);
 }
 .menu-btn{
+  cursor: pointer;
   margin: 0;
 }
 .register,
@@ -276,6 +327,26 @@ ul li{
 }
 .close-btn:hover{
   background-color: #ffffff;
+}
+.menu-username{
+  font-weight: bold;
+  padding: 10px;
+  margin: 0 0 0 133px;
+  color: #ffffff;
+  cursor: pointer;
+}
+.menu-username:hover{
+  background: rgba(221, 221, 221, 0.1);
+}
+.dropdown {
+  position: absolute;
+  width: 120px;
+  top: 33px;
+  text-align: center;
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999;
 }
 
 </style>

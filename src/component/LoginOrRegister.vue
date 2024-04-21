@@ -25,15 +25,25 @@
       </el-form-item>
       <el-form-item>
         <el-row>
-          <el-col :span="24">
-            <el-button class="login-register-btn" @click="showLoginForm ? login() : register()" type="primary">{{ showLoginForm ? '登录' : '注册' }}</el-button>
+          <el-col :span="15">
+            <el-input  class="captcha-input" type="text" v-model="captchaInput" placeholder="验证码"></el-input>
+          </el-col>
+          <el-col :span="6">
+            <img :src="this.captchaImage" @click="refreshCaptcha" class="captcha-img" alt="验证码">
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item>
         <el-row>
           <el-col :span="24">
-            <p>{{ showLoginForm ? '你有账号吗?' : '你已经有账号了吗?' }} <a href="#" @click.prevent="toggleMode" class="toggle-link">{{ showLoginForm ? '注册' : '登录' }}</a></p>
+            <el-button class="login-register-btn" @click.native="showLoginForm ? login() : register()" type="primary">{{ showLoginForm ? '登录' : '注册' }}</el-button>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item>
+        <el-row>
+          <el-col :span="24">
+            <p>{{ showLoginForm ? '你还没有账号吗?' : '已经有账号了吗?' }} <a href="#" @click.prevent="toggleMode" class="toggle-link" @click="transition">{{ showLoginForm ? '注册' : '登录' }}</a></p>
           </el-col>
         </el-row>
       </el-form-item>
@@ -42,19 +52,25 @@
 </template>
 
 <script>
-
 import {Message} from 'element-ui'
 
 export default {
   name: 'LoginOrRegister',
   props: ['showDialog', 'mode'], // 接受模式属性
+  mounted () {
+    // 在组件挂载后执行 refreshCaptcha 方法
+    this.refreshCaptcha()
+  },
   data () {
     return {
       username: '',
       password: '',
       newUsername: '',
       newPassword: '',
-      showLoginForm: true
+      showLoginForm: true,
+      captchaInput: '', // 新增验证码字段
+      captchaImage: '', // 新增验证码图片字段
+      captchaIdKey: ''
     }
   },
   watch: {
@@ -70,37 +86,59 @@ export default {
   methods: {
     async login () {
       try {
-        let res = await this.$api.login(this.username, this.password)
-        if (res.data.resultCode === 200) {
-          const token = 'token'
+        let res = await this.$api.login(this.username, this.password, this.captchaInput, this.captchaIdKey)
+        if (res.data.code === 0) {
           Message.success('登录成功')
           // 存储token到浏览器
-          localStorage.setItem('eleToken', token)
-          this.$router.push('/')
+          location.reload()
+          localStorage.setItem('token', res.data.token)
         } else {
-          Message.error(res.data.resultMsg)
+          location.reload()
+          Message.error(res.data.msg)
         }
       } catch (error) {
+        location.reload()
         Message.error('登录失败，请稍后重试')
+      }
+    },
+    async refreshCaptcha () {
+      // 调用获取验证码的 API
+      try {
+        let res = await this.$api.captcha()
+        if (res.data.code === 0) {
+          // 在 Vue 组件中使用验证码和验证码的 ID
+          this.captchaIdKey = res.data.idkey
+          this.captchaImage = res.data.data
+          return this.captchaImage
+        } else {
+          Message.error(res.data.msg)
+          return null
+        }
+      } catch (error) {
+        Message.error('验证码获取失败，请稍后重试')
+        return null
       }
     },
     async register () {
       try {
-        let res = await this.$api.register(this.newUsername, this.newPassword)
-        if (res.data.resultCode === 200) {
-          const token = 'token'
-          Message.success('登录成功')
-          // 存储token到浏览器
-          localStorage.setItem('eleToken', token)
-          this.$router.push('/')
+        alert(this.captchaInput)
+        let res = await this.$api.register(this.username, this.password, this.captchaInput, this.captchaIdKey)
+        if (res.data.code === 0) {
+          location.reload()
+          Message.success('注册成功')
         } else {
-          Message.error(res.data.resultMsg)
+          location.reload()
+          Message.error(res.data.msg)
         }
       } catch (error) {
+        location.reload()
         Message.error('注册失败，请稍后重试')
       }
     },
     toggleMode () {
+      this.refreshCaptcha()
+    },
+    transition () {
       this.showLoginForm = !this.showLoginForm
     }
   }
@@ -109,8 +147,8 @@ export default {
 
 <style scoped>
 .login-register-dialog {
-  width: 450px;
-  height: 330px;
+  width: 460px;
+  height: 390px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -150,4 +188,11 @@ export default {
 .toggle-link:hover {
   text-decoration: underline;
 }
+
+.captcha-img{
+  margin: 0 5px;
+  width: 150px;
+  height: 40px;
+}
+
 </style>

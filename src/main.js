@@ -7,7 +7,6 @@ import '../static/assets/css/style.css'
 import Vue from 'vue'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import { sync } from 'vuex-router-sync'
 
 // Markdown editor and related themes
 import VueMarkdownEditor from '@kangc/v-md-editor'
@@ -57,7 +56,6 @@ import App from './App'
 
 // Router and store
 import router from './router'
-import store from './store/index'
 
 // Use Vue plugins and configure Markdown editor
 Vue.use(VueMarkdownEditor)
@@ -67,7 +65,6 @@ VueMarkdownEditor.use(vuepressTheme, { Prism })
 VueMarkdownEditor.use(githubTheme, { Hljs: hljs })
 
 // Sync router with Vuex store
-sync(store, router)
 
 // Disable production tip
 Vue.config.productionTip = false
@@ -77,7 +74,6 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
-  store,
   template: '<App/>',
   components: {
     App,

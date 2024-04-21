@@ -1,12 +1,20 @@
 <template>
   <el-container class="containers aiknow">
-    <el-tag class="mx-1" type="success">用户对话记录最多保存2000字的长度，超过长度将会重置</el-tag>
     <el-container class="mcontainer">
       <el-aside class="lcontainer">
         <el-select v-model="selectedModel" placeholder="请选择模型" @change="modelSelectionChanged">
           <el-option label="GPT-4" value="gpt-4"></el-option>
           <el-option label="GPT-3" value="gpt-3.5-turbo"></el-option>
         </el-select>
+        <div class="history">
+          <div v-for="(message, index) in historyMessages" :key="index" readonly="true" @click="selectHistory(index)">
+            <el-col class="elcol" type="text"  :class="{ 'hovered': index === selectedHistoryIndex}"
+                    @mouseenter="selectedHistoryIndex = index" @mouseleave="selectedHistoryIndex = -1"
+            >
+              {{message.Content }}
+            </el-col>
+          </div>
+        </div>
         <el-aside class="clear-button">
           <el-button @click="clear">清空对话记录</el-button>
         </el-aside>
@@ -16,10 +24,10 @@
           <div v-for="(message, index) in messages" :key="index" class="message-item" :class="{ 'user-message': message.isUser, 'bot-message': !message.isUser }">
             <div class="imgheader">
               <div v-if="message.isUser" class="user">
-                <el-avatar class="imgel" src="../assets/logo.png"> 用户</el-avatar>
+                <el-avatar class="imgel" src=""> 用户</el-avatar>
               </div>
-              <div v-else class="bot">
-                <el-avatar class="imgel" src="../assets/logo.png" >AI</el-avatar>
+              <div v-else class="ai">
+                  <el-avatar class="imgel" src="" >AI</el-avatar>
               </div>
             </div>
             <el-card class="ecard">
@@ -50,6 +58,7 @@
 
 <script>
 import marked from 'marked'
+import {Message} from 'element-ui'
 let rendererMD = new marked.Renderer()
 marked.setOptions({
   renderer: rendererMD,
@@ -67,46 +76,121 @@ export default {
     return {
       userInput: '',
       messages: [],
-      selectedModel: 'gpt-3.5-turbo'
+      historyMessages: [],
+      selectedModel: 'gpt-3.5-turbo',
+      selectId: '',
+      selectedHistoryIndex: 0 // 默认选择第一个项
     }
   },
+  mounted () {
+    this.getMessage()
+  },
   methods: {
+    selectHistory (index) {
+      try {
+        this.messages = []
+        this.selectedHistoryIndex = index
+        // 将处理后的数据字符串解析为 JSON 格式
+        const data = JSON.parse(`[` + this.historyMessages[this.selectedHistoryIndex].Content + `]`)
+        // 提取 role 和 content
+        data.map(item => {
+          console.log(item)
+          if (item.role === 'user') {
+            this.messages.push({
+              isTyping: null,
+              isUser: true,
+              content: item.content
+            })
+          } else {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: item.content
+            })
+          }
+          this.$nextTick(this.scrollToBottom)
+        })
+      } catch (error) {
+        Message.error(error)
+      }
+    },
     modelSelectionChanged (value) {
       this.selectedModel = value // 更新selectedModel为所选模型的值
     },
     clear () {
       this.messages = [] // 清空对话记录
+      let res = this.$api.DeleteAiKnowList()
+      if (res.data.code === 0) {
+        location.reload()
+        Message.success(res.data.msg)
+      } else {
+        location.reload()
+        Message.error(res.data.msg)
+      }
     },
     copyText (text) {
       navigator.clipboard.writeText(text).then(() => {
         // 成功复制文本到剪贴板的逻辑
-        this.$message.success('文本已成功复制到剪贴板')
+        Message.success('文本已成功复制到剪贴板')
       }).catch(() => {
         // 复制失败的逻辑
-        this.$message.error('复制文本到剪贴板失败')
+        Message.error('复制文本到剪贴板失败')
       })
     },
     parseMarkdown (content) {
       return marked(content)
     },
-    sendMessage () {
-      if (this.userInput !== '') {
-        this.messages.push({
-          isTyping: null,
-          isUser: true,
-          content: this.userInput
-        })
-        // 清空输入框内容
-        this.userInput = ''
-        // 调整容器高度逻辑
-        this.adjustContainerHeight()
+    async getMessage () {
+      try {
+        let res = await this.$api.getAiKnow()
+        if (res.data.code === 0) {
+          // eslint-disable-next-line standard/object-curly-even-spacing
+          this.historyMessages = res.data.data.map(item => ({Id: item.Id, Content: item.Content }))
+          this.selectHistory(this.selectedHistoryIndex)
+          this.$nextTick(this.scrollToBottom)
+        } else {
+        }
+      } catch (error) {
+        // eslint-disable-next-line standard/object-curly-even-spacing
+        this.historyMessages = [{Id: -1, Content: '新对话' }]
+      }
+    },
+    async sendMessage () {
+      var token = localStorage.getItem('token')
+      if (this.userInput.trim() !== '') {
+        if (token !== null) {
+          this.messages.push({
+            isTyping: null,
+            isUser: true,
+            content: this.userInput
+          })
+          let res = await this.$api.putAiKnow(this.userInput, this.historyMessages[this.selectedHistoryIndex].Id)
+          this.messages.push({
+            isTyping: null,
+            isUser: false,
+            content: res.data.data
+          })
+          if (this.historyMessages[this.selectedHistoryIndex].Id === -1) {
+            location.reload()
+          }
+          this.$nextTick(this.scrollToBottom)
+          // 清空输入框内容
+          this.userInput = ''
+          // 调整容器高度逻辑
+          this.adjustContainerHeight()
+        } else {
+          Message.error('请登陆后再进行操作')
+        }
+      } else {
+        Message.error('你没有输入内容哦!')
       }
     },
     adjustContainerHeight () {
+    },
+    scrollToBottom () {
+      const messageContainer = this.$refs.messageContainer
+      messageContainer.scrollTop = messageContainer.scrollHeight
     }
-  },
-  mounted () {
-    // 初始化逻辑
   }
 }
 </script>
@@ -125,23 +209,17 @@ export default {
 }
 .copy-container {
   margin-top: -20px; /* 调整到合适的位置 */
-  margin-left: 10px; /* 调整到合适的位置 */
+  margin-left: 680px; /* 调整到合适的位置 */
+  cursor: pointer;
 }
 
 .imgel{
-  height: 40px;
-  width: 40px;
-}
-.user{
-  float: right;
-}
-.mx-1{
-  height: 30px;
-  width: 100%;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 35px;
+  width: 35px;
+  line-height: 35px;
+  font-size: 10px;
+  margin-right: 10px;
+  float: left;
 }
 
 .mcontainer {
@@ -167,8 +245,9 @@ export default {
 }
 .message-container{
   width: 100%;
-  height: 560px;
+  height: 580px;
   overflow-y: auto;
+  margin-bottom: 10px;
 }
 
 .message {
@@ -189,5 +268,25 @@ export default {
   flex-direction: column;
   justify-content: space-between;
 }
+.history{
+  height: 550px;
+  width: 280px;
+  margin: -10px;
+}
 
+.elcol[type="text"] {
+  padding: 5px;
+  margin: 10px;
+  width: 260px;
+  height: 40px;
+  line-height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 如果需要显示省略号 */
+  cursor: pointer;
+}
+.elcol:hover,
+.elcol.hovered {
+  background: #eeeeee;
+}
 </style>
