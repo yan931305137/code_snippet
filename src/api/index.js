@@ -1,18 +1,9 @@
 import request from '../utils/request'
 
 export default {
-  getUsername () {
-    return request({
-      url: '/user/getUsername',
-      method: 'get'
-    })
-  },
   login (username, password, captcha, idKey) {
     let data = {
-      username,
-      password,
-      captcha,
-      idKey
+      username, password, captcha, idKey
     }
     return request({
       url: '/user/login',
@@ -34,10 +25,7 @@ export default {
   },
   register (username, password, captcha, idKey) {
     let data = {
-      username,
-      password,
-      captcha,
-      idKey
+      username, password, captcha, idKey
     }
     return request({
       url: '/user/register',
@@ -53,8 +41,7 @@ export default {
   },
   putAiKnow (content, id) {
     let data = {
-      content,
-      id
+      content, id
     }
     return request({
       url: '/aiKnow',
@@ -66,6 +53,34 @@ export default {
     return request({
       url: '/aiKnow/deleteList',
       method: 'delete'
+    })
+  },
+  GetInformation () {
+    return request({
+      url: '/user/Information',
+      method: 'get'
+    })
+  },
+  PutInformation () {
+    return request({
+      url: '/user/Information',
+      method: 'put'
+    })
+  },
+  PostCode (content, category, description, title, tags, ExpireTime, authority, CodePassword) {
+    let data = {
+      content, category, description, title, tags, ExpireTime, authority, CodePassword
+    }
+    return request({
+      url: '/code/PostCode',
+      method: 'post',
+      data
+    })
+  },
+  GetMyCode () {
+    return request({
+      url: '/code/GetMyCode',
+      method: 'get'
     })
   }
 }

@@ -5,6 +5,7 @@ import Codes from '@/pages/Codes'
 import MyCode from '@/pages/MyCode'
 import MyFavorite from '@/pages/MyFavorite'
 import AiKnow from '@/pages/Aiknow'
+import PerInformation from '@/pages/PerInformation'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/ai_know',
       name: 'ai_know',
       component: AiKnow
+    },
+    {
+      path: '/per_information',
+      name: 'per_information',
+      component: PerInformation
     }
   ]
 })

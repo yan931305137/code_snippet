@@ -16,7 +16,7 @@
           </div>
         </div>
         <el-aside class="clear-button">
-          <el-button @click="clear">清空对话记录</el-button>
+          <el-button @click="clear">清空全部对话记录</el-button>
         </el-aside>
       </el-aside>
       <el-main class="rcontainer">
@@ -24,10 +24,10 @@
           <div v-for="(message, index) in messages" :key="index" class="message-item" :class="{ 'user-message': message.isUser, 'bot-message': !message.isUser }">
             <div class="imgheader">
               <div v-if="message.isUser" class="user">
-                <el-avatar class="imgel" src=""> 用户</el-avatar>
+                <el-avatar  class="imgel" :src="favatar()">用户</el-avatar>
               </div>
               <div v-else class="ai">
-                  <el-avatar class="imgel" src="" >AI</el-avatar>
+                  <el-avatar class="imgel" src="">AI</el-avatar>
               </div>
             </div>
             <el-card class="ecard">
@@ -58,7 +58,7 @@
 
 <script>
 import marked from 'marked'
-import {Message} from 'element-ui'
+import {Message, MessageBox} from 'element-ui'
 let rendererMD = new marked.Renderer()
 marked.setOptions({
   renderer: rendererMD,
@@ -72,6 +72,7 @@ marked.setOptions({
 })
 
 export default {
+  inject: ['reload'],
   data () {
     return {
       userInput: '',
@@ -86,6 +87,9 @@ export default {
     this.getMessage()
   },
   methods: {
+    favatar () {
+      return this.$parent.avatar
+    },
     selectHistory (index) {
       try {
         this.messages = []
@@ -94,7 +98,6 @@ export default {
         const data = JSON.parse(`[` + this.historyMessages[this.selectedHistoryIndex].Content + `]`)
         // 提取 role 和 content
         data.map(item => {
-          console.log(item)
           if (item.role === 'user') {
             this.messages.push({
               isTyping: null,
@@ -117,16 +120,25 @@ export default {
     modelSelectionChanged (value) {
       this.selectedModel = value // 更新selectedModel为所选模型的值
     },
-    clear () {
-      this.messages = [] // 清空对话记录
-      let res = this.$api.DeleteAiKnowList()
-      if (res.data.code === 0) {
-        location.reload()
-        Message.success(res.data.msg)
-      } else {
-        location.reload()
-        Message.error(res.data.msg)
-      }
+    async clear () {
+      MessageBox.confirm('确定删除对话记录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 执行删除对话记录
+        this.messages = [] // 清空对话记录
+        let res = await this.$api.DeleteAiKnowList()
+        if (res.data.code === 0) {
+          this.reload()
+          Message.success(res.data.msg)
+        } else {
+          this.reload()
+          Message.error(res.data.msg)
+        }
+      }).catch(() => {
+        Message.info('取消删除对话记录')
+      })
     },
     copyText (text) {
       navigator.clipboard.writeText(text).then(() => {
@@ -171,7 +183,7 @@ export default {
             content: res.data.data
           })
           if (this.historyMessages[this.selectedHistoryIndex].Id === -1) {
-            location.reload()
+            this.reload()
           }
           this.$nextTick(this.scrollToBottom)
           // 清空输入框内容

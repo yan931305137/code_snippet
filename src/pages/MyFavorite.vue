@@ -70,9 +70,6 @@ export default {
   align-items: center;
 }
 
-.span2{
-  margin-bottom: 16px;
-}
 .el-input1 {
   margin-left: 20px;
 }

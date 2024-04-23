@@ -19,8 +19,8 @@ export default {
     }
   },
   props: {
-    language: String,
-    value: String
+    language: '',
+    value: ''
   },
   created () {
 

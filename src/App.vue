@@ -5,7 +5,7 @@
     <div class="header-top">
       <div class="container">
         <div class="row">
-          <div class="col-lg-2">
+          <div class="col-lg-3">
             <div class="logo-area">
               <router-link to="/"><h1 class="logo-text">Code_Snippet</h1></router-link>
             </div>
@@ -28,10 +28,12 @@
                   <a class="register" @click="toggleDialog('register')">注册</a>
                 </li>
                 <el-dropdown v-if="username" class="menu-username" @mouseover="Dropdown" @mouseout="noDropdown">
-                  <span>用户 : {{ username }}</span> <!-- 将用户名显示在菜单中 -->
+                  <span class="span-username">用户 : {{ username }}</span> <!-- 将用户名显示在菜单中 -->
                     <el-dropdown-menu v-show="showDropdown" class="dropdown">
                       <el-dropdown-item @click.native="logouts" class="dropdown-li">退出登录</el-dropdown-item>
-                      <el-dropdown-item @click.native="persionals" class="dropdown-li">个人中心</el-dropdown-item>
+                      <el-dropdown-item class="dropdown-li" :class="{ active: isRouteActive('/per_information') }">
+                        <router-link class="dropdown-li" to="/per_information">个人信息</router-link>
+                      </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
               </ul>
@@ -48,7 +50,7 @@
   </div>
 
   <!-- 中间页面区 -->
-  <router-view></router-view>
+  <router-view  v-if="isRouterAlive"></router-view>
 
 
   <!-- 底部栏 -->
@@ -116,17 +118,17 @@
   </footer>
 
 <!--  右下角小功能-->
-  <div class="support" @click.native="">
+  <div class="support" @click="">
       <i class="fa fa-qrcode black"></i>
   </div>
-  <div class="scroll-to-top" v-show="isScrolled" @click.native="scrollToTop" >
+  <div class="scroll-to-top" v-show="isScrolled" @click="scrollToTop" >
       <i class="fa fa-angle-up black"></i>
   </div>
 </div>
 </template>
 
 <script>
-import LoginOrRegister from '../src/component/LoginOrRegister.vue'
+import LoginOrRegister from '../src/component/LoginOrRegister'
 import {Message, MessageBox} from 'element-ui'
 
 export default {
@@ -134,17 +136,32 @@ export default {
   components: {
     LoginOrRegister
   },
+  provide () {
+    return {
+      reload: this.reload
+    }
+  },
   data () {
     return {
+      isRouterAlive: true,
+      activeIndex: '1',
       showDialog: false,
       isScrolled: false,
       dialogMode: '', // 添加对话框模式
       username: '',
-      showDropdown: false // 添加显示下拉框的状态
+      showDropdown: false, // 添加显示下拉框的状态
+      avatar: '',
+      phone: '',
+      gender: '',
+      email: '',
+      birthday: '',
+      place: '',
+      address: '',
+      status: ''
     }
   },
   mounted () {
-    this.getUsername()
+    this.getInformation()
     window.addEventListener('scroll', this.handleScroll)
   },
   destroyed () {
@@ -152,10 +169,18 @@ export default {
   },
   methods: {
      // 页面挂载后立即发送请求获取用户名
-    async getUsername () {
+    async getInformation () {
       try {
-        const res = await this.$api.getUsername() // 发送GET请求至后端接口
-        this.username = res.data.data // 假设后端返回的数据中包含用户名字段
+        const res = await this.$api.GetInformation() // 发送GET请求至后端接口
+        this.username = res.data.data.UserName
+        this.avatar = res.data.data.Avatar
+        this.phone = res.data.data.Mobile
+        this.gender = res.data.data.Gender
+        this.email = res.data.data.Email
+        this.birthday = res.data.data.Birthday
+        this.place = res.data.data.CityName
+        this.address = res.data.data.Address
+        this.status = res.data.data.Status
       } catch (error) {
         console.error('获取用户名失败:', error) // 打印错误信息到控制台
       }
@@ -206,12 +231,21 @@ export default {
     },
     isRouteActive (route) {
       return this.$route.path === route
+    },
+    reload () {
+      this.isRouterAlive = false
+      this.$nextTick(function () {
+        this.isRouterAlive = true
+      })
     }
   }
 }
 </script>
 
 <style>
+.col-lg-10 {
+flex: 0 0 70%;
+}
 .logo-text{
   width: 80px;
     color: #ffffff;
@@ -260,7 +294,7 @@ export default {
   opacity: 1;
 }
 ul li{
-  padding: 10px;
+  padding: 10px 0;
 }
 .menul li a{
   display: inline-block;
@@ -268,6 +302,7 @@ ul li{
   height: 51px;
   text-align: center;
 }
+
 .menul li:nth-child(-n+5).active {
   border-bottom: 2px solid white;
   background-color: rgba(119, 119, 119, 0.10);
@@ -276,8 +311,9 @@ ul li{
   background-color: rgba(119, 119, 119, 0.10);
 }
 .menu-btn{
+  margin-left: 50px!important;
+  margin-right: -50px!important;
   cursor: pointer;
-  margin: 0;
 }
 .register,
 .login{
@@ -328,25 +364,38 @@ ul li{
 .close-btn:hover{
   background-color: #ffffff;
 }
+
 .menu-username{
-  font-weight: bold;
-  padding: 10px;
-  margin: 0 0 0 133px;
+  width: 176px;
   color: #ffffff;
   cursor: pointer;
 }
-.menu-username:hover{
-  background: rgba(221, 221, 221, 0.1);
-}
+
 .dropdown {
-  position: absolute;
+  margin-left: 120px!important;
+  margin-right: -50px!important;
   width: 120px;
-  top: 33px;
   text-align: center;
-  right: 0;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 999;
+}
+.dropdown-li{
+  color: #000000!important;
+}
+.span-username{
+  margin-left: 120px!important;
+  margin-right: -120px!important;
+  padding: 10px 0;
+  text-align: center;
+  margin-bottom: -15px!important;
+  display: inline-block;
+  width: 110px; /* 设置固定宽度 */
+  white-space: nowrap; /* 禁止换行 */
+  overflow: hidden; /* 隐藏溢出部分 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
+.span-username:hover{
+  background: rgba(221, 221, 221, 0.1);
+}
 </style>
