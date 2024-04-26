@@ -36,15 +36,31 @@
       <div class="button">
         <el-button @click="authority(1)">公开</el-button>
         <el-button @click="authority(2)">私人</el-button>
-        <el-button @click="authority(3)">加密</el-button>
+        <el-button @click="encryption">加密</el-button>
         <el-button class="submit" @click="code_submit">提交</el-button>
       </div>
+      <el-dialog
+        class="dialog"
+        title="输入密码"
+        :visible.sync="dialogVisible"
+        :close-on-click-modal="false"
+      >
+        <el-form :model="form" >
+          <el-form-item label="密码" prop="password">
+            <el-input type="password" v-model="form.password"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirm">确定</el-button>
+        </div>
+      </el-dialog>
     </div>
     <el-row>
       <span>我的代码</span>
       <el-col :span="24" v-for="(card, index) in cards" :key="index">
-        <el-card class="el-card" :body-style="{ padding: '0px' }">
-          <MonacoEditor class="monaco_editor" v-model="card.content" :language="card.category"></MonacoEditor>
+        <el-card class="el-card my-code-card" :body-style="{ padding: '0px' }">
+          <MonacoEditor class="monaco_code" ref="MonacoCode" v-model="card.content" :readOnly=true :language="card.category"></MonacoEditor>
           <div style="padding: 14px;">
             <div class="bottom clearfix">
               <div class="card-description">{{card.description}}</div>
@@ -72,8 +88,12 @@ export default {
   },
   data () {
     return {
+      form: {
+        password: ''
+      },
+      dialogVisible: false,
       isShow: true,
-      cards: [], // Array with length 2 for two cards
+      cards: [],
       authority: 1,
       category: '',
       content: '',
@@ -83,42 +103,58 @@ export default {
       description: '',
       code_password: '',
       options: [{
-        value: '选项1',
+        value: '0',
+        label: 'text'
+      }, {
+        value: '1',
         label: 'go'
       }, {
-        value: '选项2',
+        value: '2',
         label: 'java'
       }, {
-        value: '选项3',
+        value: '3',
         label: 'python'
       }, {
-        value: '选项4',
+        value: '4',
         label: 'json'
       }, {
-        value: '选项5',
+        value: '5',
         label: 'sql'
       }],
       value: ''
     }
   },
   methods: {
+    encryption () {
+      this.dialogVisible = true
+    },
+    confirm () {
+      // 在这里可以继续进行加密操作，使用用户输入的密码
+      this.code_password = this.form.password
+      // 调用加密方法
+      this.authority(3)
+      // 关闭对话框
+      this.dialogVisible = false
+    },
     async getMyCode () {
       try {
-        let res = await this.$api.GetMyCode()
-        if (res.data.code !== 0) {
-          Message.error(res.data.msg)
-        } else {
-          for (let i = 0; i < res.data.data.length; i++) {
-            this.cards.push({
-              content: res.data.data[i].Content,
-              category: res.data.data[i].Category,
-              description: res.data.data[i].Description,
-              title: res.data.data[i].Title,
-              tags: res.data.data[i].Tags,
-              expire_time: res.data.data[i].ExpireTime,
-              authority: res.data.data[i].Authority,
-              code_password: res.data.data[i].CodePassword
-            })
+        if (localStorage.getItem('token') !== null) {
+          let res = await this.$api.GetMyCode()
+          if (res.data.code !== 0) {
+            Message.error(res.data.msg)
+          } else if (res.data.code === 0 && res.data.data !== null) {
+            for (let i = 0; i < res.data.data.length; i++) {
+              this.cards.push({
+                content: res.data.data[i].Content,
+                category: res.data.data[i].Category,
+                description: res.data.data[i].Description,
+                title: res.data.data[i].Title,
+                tags: res.data.data[i].Tags,
+                expire_time: res.data.data[i].ExpireTime,
+                authority: res.data.data[i].Authority,
+                code_password: res.data.data[i].CodePassword
+              })
+            }
           }
         }
       } catch (err) {
@@ -267,5 +303,13 @@ export default {
   white-space: nowrap; /* 禁止换行 */
   overflow: hidden; /* 隐藏溢出部分 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
+}
+.my-code-card {
+  cursor: pointer !important;
+}
+.dialog{
+  width: 800px;
+  height: 500px;
+  margin: auto;
 }
 </style>

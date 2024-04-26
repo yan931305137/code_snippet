@@ -3,8 +3,8 @@
     <h4>编程语言</h4>
     <hr/>
     <ul class="search-ul">
-      <li v-for="(language, index) in languages" :key="index">
-        <el-checkbox v-model="language.selected">{{ language.name }} ({{ language.count }})</el-checkbox>
+      <li v-for="(language, index) in languages" :key="index" @click="toSelection(language)">
+        <el-checkbox>{{ language.name }} ({{ language.count }})</el-checkbox>
       </li>
     </ul>
   </div>
@@ -82,12 +82,47 @@ export default {
         {name: 'OCaml', value: 'ocaml', count: 0, selected: false},
         {name: 'Octave', value: 'octave', count: 0, selected: false},
         {name: 'Pascal', value: 'pascal', count: 0, selected: false}
-      ]
+      ],
+      selectedValues: []
+    }
+  },
+  methods: {
+    toSelection (language) {
+      language.selected = !language.selected
+      if (language.selected && !this.selectedValues.includes(language.value)) {
+        this.selectedValues.push(language.value)
+      } else if (!language.selected && this.selectedValues.includes(language.value)) {
+        const index = this.selectedValues.indexOf(language.value)
+        if (index !== -1) {
+          this.selectedValues.splice(index, 1)
+        }
+      }
+      console.log(this.selectedValues)
+      this.filterCards()
+    },
+    filterCards () {
+      this.cards = []
+      for (let i = 0; i < this.$parent.cards.length; i++) {
+        const card = this.$parent.cards[i]
+        // 检查卡片是否匹配选中的语言
+        if (this.selectedValues.includes(card.category)) {
+          this.cards.push({
+            content: card.Content,
+            category: card.Category,
+            description: card.Description,
+            title: card.Title,
+            tags: card.Tags,
+            expire_time: card.ExpireTime,
+            authority: card.Authority,
+            code_password: card.CodePassword
+          })
+        }
+      }
+      this.$parent.cards = this.cards
     }
   }
 }
 </script>
-
 <style>
 .search-directory {
   border: #dddddd 0.5px solid;

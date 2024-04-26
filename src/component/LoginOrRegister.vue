@@ -86,22 +86,29 @@ export default {
   methods: {
     async login () {
       try {
-        let res = await this.$api.login(this.username, this.password, this.captchaInput, this.captchaIdKey)
-        if (res.data.code === 0) {
-          Message.success('登录成功')
-          // 存储token到浏览器
-          location.reload()
-          localStorage.setItem('token', res.data.token)
+        if (this.captchaInput.trim() !== '' && this.username.trim() !== '' && this.password.trim() !== '') {
+          let res = await this.$api.login(this.username, this.password, this.captchaInput, this.captchaIdKey)
+          if (res.data.code === 0) {
+            Message.success('登录成功')
+            // 存储token到浏览器
+            localStorage.setItem('token', res.data.token)
+            await this.$parent.getInformation()
+            location.reload()
+          } else {
+            Message.error(res.data.msg)
+            await this.refreshCaptcha()
+          }
         } else {
-          location.reload()
-          Message.error(res.data.msg)
+          Message.error('请将登录表格填写完整!')
+          await this.refreshCaptcha()
         }
       } catch (error) {
-        location.reload()
         Message.error('登录失败，请稍后重试')
+        await this.refreshCaptcha()
       }
     },
     async refreshCaptcha () {
+      this.captchaInput = ''
       // 调用获取验证码的 API
       try {
         let res = await this.$api.captcha()
@@ -121,7 +128,6 @@ export default {
     },
     async register () {
       try {
-        alert(this.captchaInput)
         let res = await this.$api.register(this.username, this.password, this.captchaInput, this.captchaIdKey)
         if (res.data.code === 0) {
           location.reload()
@@ -131,8 +137,8 @@ export default {
           Message.error(res.data.msg)
         }
       } catch (error) {
-        location.reload()
         Message.error('注册失败，请稍后重试')
+        this.refreshCaptcha()
       }
     },
     toggleMode () {

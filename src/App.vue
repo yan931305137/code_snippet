@@ -27,14 +27,17 @@
                   <a class="login" @click="toggleDialog('login')">登录</a>
                   <a class="register" @click="toggleDialog('register')">注册</a>
                 </li>
-                <el-dropdown v-if="username" class="menu-username" @mouseover="Dropdown" @mouseout="noDropdown">
-                  <span class="span-username">用户 : {{ username }}</span> <!-- 将用户名显示在菜单中 -->
-                    <el-dropdown-menu v-show="showDropdown" class="dropdown">
-                      <el-dropdown-item @click.native="logouts" class="dropdown-li">退出登录</el-dropdown-item>
-                      <el-dropdown-item class="dropdown-li" :class="{ active: isRouteActive('/per_information') }">
-                        <router-link class="dropdown-li" to="/per_information">个人信息</router-link>
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
+                <el-dropdown v-if="username"  class="menu-username">
+                  <div class="dropdownDiv">
+                    <span class="span-username">用户 : {{ username }}</span>
+                    <i class="el-icon-arrow-down el-icon--right down"></i>
+                  </div>
+                  <el-dropdown-menu slot="dropdown" class="dropdown">
+                    <el-dropdown-item @click.native="logouts" class="dropdown-li">退出登录</el-dropdown-item>
+                    <el-dropdown-item class="dropdown-li" :class="{ active: isRouteActive('/per_information') }">
+                      <router-link class="dropdown-li" to="/per_information">个人信息</router-link>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
                 </el-dropdown>
               </ul>
             </div>
@@ -58,7 +61,7 @@
     <div class="footer-widget">
       <div class="container">
         <div class="row">
-          <div class="col-xl-2 col-lg-3">
+          <div class="col-xl-7 col-lg-9">
             <div class="single-widget-home mb-5 mb-lg-0">
               <h3 class="mb-4">我们的项目</h3>
               <ul>
@@ -68,16 +71,7 @@
               </ul>
             </div>
           </div>
-          <div class="col-xl-5 offset-xl-1 col-lg-6">
-            <div class="single-widget-home mb-5 mb-lg-0">
-              <h3 class="mb-4">搜索</h3>
-              <form action="#">
-                <input type="email" placeholder="搜索你想要的代码片段吧" onfocus="this.placeholder = '快去吧'" onblur="this.placeholder = '到这里搜索代码片段'" required>
-                <button type="submit" class="template-btn">搜索</button>
-              </form>
-            </div>
-          </div>
-          <div class="col-xl-3 offset-xl-1 col-lg-3">
+          <div class="col-xl-3 offset-xl-2 col-lg-3">
             <div class="single-widge-home">
               <h3 class="mb-4">贡献者</h3>
               <div class="feed">
@@ -149,7 +143,6 @@ export default {
       isScrolled: false,
       dialogMode: '', // 添加对话框模式
       username: '',
-      showDropdown: false, // 添加显示下拉框的状态
       avatar: '',
       phone: '',
       gender: '',
@@ -161,7 +154,20 @@ export default {
     }
   },
   mounted () {
-    this.getInformation()
+    if (localStorage.getItem('token') !== null && localStorage.getItem('information') === null) {
+      this.getInformation()
+    }
+    const information = JSON.parse(localStorage.getItem('information'))
+    if (information) {
+      this.username = information.username
+      this.avatar = information.avatar
+      this.email = information.email
+      this.phone = information.phone
+      this.address = information.address
+      this.brithday = information.birthday
+      this.gender = information.gender
+      this.status = information.status
+    }
     window.addEventListener('scroll', this.handleScroll)
   },
   destroyed () {
@@ -172,17 +178,24 @@ export default {
     async getInformation () {
       try {
         const res = await this.$api.GetInformation() // 发送GET请求至后端接口
-        this.username = res.data.data.UserName
-        this.avatar = res.data.data.Avatar
-        this.phone = res.data.data.Mobile
-        this.gender = res.data.data.Gender
-        this.email = res.data.data.Email
-        this.birthday = res.data.data.Birthday
-        this.place = res.data.data.CityName
-        this.address = res.data.data.Address
-        this.status = res.data.data.Status
+        if (res.data.code === 0) {
+          const information = {
+            username: res.data.data.UserName,
+            avatar: res.data.data.Avatar,
+            phone: res.data.data.Mobile,
+            gender: res.data.data.Gender,
+            email: res.data.data.Email,
+            birthday: res.data.data.Birthday,
+            place: res.data.data.CityName,
+            address: res.data.data.Address,
+            status: res.data.data.Status
+          }
+          localStorage.setItem('information', JSON.stringify(information))
+        } else {
+          Message.error(res.data.msg)
+        }
       } catch (error) {
-        console.error('获取用户名失败:', error) // 打印错误信息到控制台
+        Message.error('获取用户名失败') // 打印错误信息到控制台
       }
     },
     closeDialog () {
@@ -201,12 +214,6 @@ export default {
         behavior: 'smooth'
       })
     },
-    Dropdown () {
-      this.showDropdown = true
-    },
-    noDropdown () {
-      this.showDropdown = false
-    },
     logouts () {
       MessageBox.confirm('确定退出登录吗？', '提示', {
         confirmButtonText: '确定',
@@ -219,15 +226,13 @@ export default {
           location.reload()
           Message.success(res.data.msg)
           localStorage.removeItem('token')
+          localStorage.removeItem('information')
         } else {
           Message.error(res.data.msg)
         }
       }).catch(() => {
         Message.info('取消退出登录')
       })
-    },
-    persionals () {
-      // 跳转到个人中心页面
     },
     isRouteActive (route) {
       return this.$route.path === route
@@ -374,7 +379,8 @@ ul li{
 .dropdown {
   margin-left: 120px!important;
   margin-right: -50px!important;
-  width: 120px;
+  margin-top: 20px!important;
+  width: 140px;
   text-align: center;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -383,19 +389,26 @@ ul li{
   color: #000000!important;
 }
 .span-username{
-  margin-left: 120px!important;
-  margin-right: -120px!important;
-  padding: 10px 0;
-  text-align: center;
-  margin-bottom: -15px!important;
-  display: inline-block;
   width: 110px; /* 设置固定宽度 */
   white-space: nowrap; /* 禁止换行 */
   overflow: hidden; /* 隐藏溢出部分 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
-.span-username:hover{
+.dropdownDiv{
+  text-align: center;
+  width: 150px!important;
+  margin-left: 80px!important;
+  margin-right: -80px!important;
+  margin-bottom: -15px!important;
+  display: inline-block;
+}
+
+.dropdownDiv:hover{
   background: rgba(221, 221, 221, 0.1);
+}
+
+.down{
+  line-height: 40px;
 }
 </style>

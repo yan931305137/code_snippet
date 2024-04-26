@@ -6,8 +6,8 @@
           <el-option label="GPT-4" value="gpt-4"></el-option>
           <el-option label="GPT-3" value="gpt-3.5-turbo"></el-option>
         </el-select>
-        <div class="history">
-          <div v-for="(message, index) in historyMessages" :key="index" readonly="true" @click="selectHistory(index)">
+        <div class="history" v-show="this.showHistory">
+          <div v-for="(message, index) in slideMessage" :key="index" readonly="true" @click="selectHistory(index)">
             <el-col class="elcol" type="text"  :class="{ 'hovered': index === selectedHistoryIndex}"
                     @mouseenter="selectedHistoryIndex = index" @mouseleave="selectedHistoryIndex = -1"
             >
@@ -15,6 +15,9 @@
             </el-col>
           </div>
         </div>
+        <el-aside class="clear-button">
+          <el-button @click="create">添加空白对话</el-button>
+        </el-aside>
         <el-aside class="clear-button">
           <el-button @click="clear">清空全部对话记录</el-button>
         </el-aside>
@@ -72,12 +75,13 @@ marked.setOptions({
 })
 
 export default {
-  inject: ['reload'],
   data () {
     return {
+      showHistory: true,
       userInput: '',
       messages: [],
       historyMessages: [],
+      slideMessage: [],
       selectedModel: 'gpt-3.5-turbo',
       selectId: '',
       selectedHistoryIndex: 0 // 默认选择第一个项
@@ -130,10 +134,10 @@ export default {
         this.messages = [] // 清空对话记录
         let res = await this.$api.DeleteAiKnowList()
         if (res.data.code === 0) {
-          this.reload()
+          location.reload()
           Message.success(res.data.msg)
         } else {
-          this.reload()
+          location.reload()
           Message.error(res.data.msg)
         }
       }).catch(() => {
@@ -161,10 +165,20 @@ export default {
           this.selectHistory(this.selectedHistoryIndex)
           this.$nextTick(this.scrollToBottom)
         } else {
+          Message.error(res.data.msg)
         }
       } catch (error) {
         // eslint-disable-next-line standard/object-curly-even-spacing
         this.historyMessages = [{Id: -1, Content: '新对话' }]
+      }
+      for (let i = 0; i < this.historyMessages.length; i++) {
+        const data = JSON.parse(`[` + this.historyMessages[i].Content + `]`)
+        // 提取 role 和 content
+        data.map(item => {
+          if (item.role === 'user') {
+            this.slideMessage[i] = {Content: item.content}
+          }
+        })
       }
     },
     async sendMessage () {
@@ -183,7 +197,7 @@ export default {
             content: res.data.data
           })
           if (this.historyMessages[this.selectedHistoryIndex].Id === -1) {
-            this.reload()
+            location.reload()
           }
           this.$nextTick(this.scrollToBottom)
           // 清空输入框内容
@@ -202,6 +216,14 @@ export default {
     scrollToBottom () {
       const messageContainer = this.$refs.messageContainer
       messageContainer.scrollTop = messageContainer.scrollHeight
+    },
+    create () {
+      this.showHistory = false
+      this.$nextTick(function () {
+        this.slideMessage[this.slideMessage.length] = {Content: '空白对话'}
+        this.historyMessages[this.slideMessage.length - 1] = {Id: -1, Content: ''}
+        this.showHistory = true
+      })
     }
   }
 }

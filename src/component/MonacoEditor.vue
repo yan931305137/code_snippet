@@ -12,7 +12,6 @@ const customLanguage = {
   'python': pythonSuggestion
 }
 export default {
-  name: 'MonacoEditor',
   data () {
     return {
       MonacoEditor: null
@@ -20,7 +19,8 @@ export default {
   },
   props: {
     language: '',
-    value: ''
+    value: '',
+    readOnly: Boolean
   },
   created () {
 
@@ -58,7 +58,7 @@ export default {
         lineNumbers: 'on', // 行号 取值： "on" | "off" | "relative" | "interval" | function
         lineNumbersMinChars: 4, // 行号最小字符   number
         enableSplitViewResizing: false,
-        readOnly: false, // 是否只读  取值 true | false
+        readOnly: this.readOnly, // 是否只读  取值 true | false
         fontSize: 18
       })
       this.monacoEditor.onDidChangeModelContent(() => {

@@ -5,10 +5,10 @@ import {
   Loading
 } from 'element-ui' // 项目中我用了element-ui组件库，Message是一个消息弹框，Loading是加载图,按需导入
 
-import router from '../router/index.js'  // 注意路径与文件名
+export const BaseURL = 'http://localhost:8099/api'
 
 const service = axios.create({
-  baseURL: 'http://localhost:8099/api', // 修改为后端服务的端口号, // api 的 base_url, url = base_url + request_url
+  baseURL: BaseURL, // 修改为后端服务的端口号, // api 的 base_url, url = base_url + request_url
   timeout: 50000 // request timeout
 })
 
@@ -50,21 +50,14 @@ service.interceptors.response.use(
   error => {
     // 错误提醒
     endLoading()
-    Message.error(error.response.data)
-
+    Message.error('token值无效,请重新登录!')
     const { status } = error.response
     if (status === 401) {
-      Message.error('token值无效，请重新登录')
-      // 清除token
-      localStorage.removeItem('token')
-
-      // 页面跳转
-      router.push('/')
+      // 清除本地值
+      localStorage.clear()
     }
-
     return Promise.reject(error)
   }
 )
 
 export default service
-
