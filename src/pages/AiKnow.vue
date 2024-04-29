@@ -6,12 +6,12 @@
           <el-option label="GPT-4" value="gpt-4"></el-option>
           <el-option label="GPT-3" value="gpt-3.5-turbo"></el-option>
         </el-select>
-        <div class="history" v-show="this.showHistory">
+        <div v-show="this.showHistory" class="history">
           <div v-for="(message, index) in slideMessage" :key="index" readonly="true" @click="selectHistory(index)">
-            <el-col class="elcol" type="text"  :class="{ 'hovered': index === selectedHistoryIndex}"
+            <el-col :class="{ 'hovered': index === selectedHistoryIndex}" class="elcol" type="text"
                     @mouseenter="selectedHistoryIndex = index" @mouseleave="selectedHistoryIndex = -1"
             >
-              {{message.Content }}
+              {{ message.Content }}
             </el-col>
           </div>
         </div>
@@ -23,14 +23,16 @@
         </el-aside>
       </el-aside>
       <el-main class="rcontainer">
-        <div class="message-container" ref="messageContainer">
-          <div v-for="(message, index) in messages" :key="index" class="message-item" :class="{ 'user-message': message.isUser, 'bot-message': !message.isUser }">
+        <div ref="messageContainer" class="message-container">
+          <div v-for="(message, index) in messages" :key="index"
+               :class="{ 'user-message': message.isUser, 'bot-message': !message.isUser }"
+               class="message-item">
             <div class="imgheader">
               <div v-if="message.isUser" class="user">
-                <el-avatar  class="imgel" :src="favatar()">用户</el-avatar>
+                <el-avatar :src="favatar()" class="imgel">用户</el-avatar>
               </div>
               <div v-else class="ai">
-                  <el-avatar class="imgel" src="">AI</el-avatar>
+                <el-avatar class="imgel" src="">AI</el-avatar>
               </div>
             </div>
             <el-card class="ecard">
@@ -45,14 +47,14 @@
         </div>
         <div class="chat-input">
           <el-input
-            type="textarea"
-            class="message"
-            placeholder="请输入内容"
+            ref="chatInput"
             v-model="userInput"
             :autosize="{ minRows: 3, maxRows: 3 }"
-            ref="chatInput"
+            class="message"
+            placeholder="请输入内容"
+            type="textarea"
           ></el-input>
-          <el-button class="sbutton" @click="sendMessage(userInput)" type="primary">发送</el-button>
+          <el-button class="sbutton" type="primary" @click="sendMessage">发送</el-button>
         </div>
       </el-main>
     </el-container>
@@ -62,6 +64,7 @@
 <script>
 import marked from 'marked'
 import {Message, MessageBox} from 'element-ui'
+
 let rendererMD = new marked.Renderer()
 marked.setOptions({
   renderer: rendererMD,
@@ -160,16 +163,14 @@ export default {
       try {
         let res = await this.$api.getAiKnow()
         if (res.data.code === 0) {
-          // eslint-disable-next-line standard/object-curly-even-spacing
-          this.historyMessages = res.data.data.map(item => ({Id: item.Id, Content: item.Content }))
+          this.historyMessages = res.data.data.map(item => ({Id: item.Id, Content: item.Content}))
           this.selectHistory(this.selectedHistoryIndex)
           this.$nextTick(this.scrollToBottom)
         } else {
           Message.error(res.data.msg)
         }
       } catch (error) {
-        // eslint-disable-next-line standard/object-curly-even-spacing
-        this.historyMessages = [{Id: -1, Content: '新对话' }]
+        this.historyMessages = [{Id: -1, Content: '新对话'}]
       }
       for (let i = 0; i < this.historyMessages.length; i++) {
         const data = JSON.parse(`[` + this.historyMessages[i].Content + `]`)
@@ -191,11 +192,19 @@ export default {
             content: this.userInput
           })
           let res = await this.$api.putAiKnow(this.userInput, this.historyMessages[this.selectedHistoryIndex].Id)
-          this.messages.push({
-            isTyping: null,
-            isUser: false,
-            content: res.data.data
-          })
+          if (res.data.data !== null) {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: res.data.data
+            })
+          } else {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: res.data.msg
+            })
+          }
           if (this.historyMessages[this.selectedHistoryIndex].Id === -1) {
             location.reload()
           }
@@ -238,21 +247,24 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-.ecard{
-  padding: 0;
+
+.ecard {
+  width: 710px;
+  padding: 0 -10px;
 }
+
 .copy-container {
   margin-top: -20px; /* 调整到合适的位置 */
   margin-left: 680px; /* 调整到合适的位置 */
   cursor: pointer;
 }
 
-.imgel{
+.imgel {
   height: 35px;
   width: 35px;
   line-height: 35px;
   font-size: 10px;
-  margin-right: 10px;
+  margin: 0 10px 0 10px;
   float: left;
 }
 
@@ -269,15 +281,17 @@ export default {
   flex-direction: column;
   justify-content: space-between;
 }
-.rcontainer{
+
+.rcontainer {
   width: 70%;
 }
 
-.clear-button >*{
+.clear-button > * {
   display: inline-block;
   width: 85%;
 }
-.message-container{
+
+.message-container {
   width: 100%;
   height: 580px;
   overflow-y: auto;
@@ -287,22 +301,25 @@ export default {
 .message {
   position: absolute;
   transition: bottom 0.3s; /* 添加过渡效果 */
-  width: 680px;
+  margin-left: 40px;
+  width: 640px;
   resize: none;
   overflow-y: auto;
 }
 
-.sbutton{
+.sbutton {
   width: 10%;
   height: 74px;
   float: right;
+  margin-right: 40px;
   text-align: center;
   line-height: 47px;
   border-right: 0.5px #dddddd solid;
   flex-direction: column;
   justify-content: space-between;
 }
-.history{
+
+.history {
   height: 550px;
   width: 280px;
   margin: -10px;
@@ -319,6 +336,7 @@ export default {
   text-overflow: ellipsis; /* 如果需要显示省略号 */
   cursor: pointer;
 }
+
 .elcol:hover,
 .elcol.hovered {
   background: #eeeeee;

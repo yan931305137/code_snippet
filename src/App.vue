@@ -1,124 +1,133 @@
 <template>
-<div>
-  <!-- 头部导航栏 -->
-  <header class="header-area single-page">
-    <div class="header-top">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-3">
-            <div class="logo-area">
-              <router-link to="/"><h1 class="logo-text">Code_Snippet</h1></router-link>
+  <div>
+    <!-- 头部导航栏 -->
+    <header class="header-area single-page">
+      <div class="header-top">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-3">
+              <div class="logo-area">
+                <router-link to="/"><h1 class="logo-text">Code_Snippet</h1></router-link>
+              </div>
             </div>
-          </div>
-          <div class="col-lg-10">
-            <div class="custom-navbar">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <div class="main-menu main-menu-light">
-              <ul class="menul">
-                <li :class="{ active: isRouteActive('/') }"><router-link to="/">首页</router-link></li>
-                <li :class="{ active: isRouteActive('/codes') }"><router-link to="/codes">代码库</router-link></li>
-                <li :class="{ active: isRouteActive('/my_code') }"><router-link to="/my_code">我的代码</router-link></li>
-                <li :class="{ active: isRouteActive('/my_favorite') }"><router-link to="/my_favorite">我的收藏</router-link></li>
-                <li :class="{ active: isRouteActive('/ai_know') }"><router-link to="/ai_know">AI知道</router-link></li>
-                <li v-if="!username" class="menu-btn">
-                  <a class="login" @click="toggleDialog('login')">登录</a>
-                  <a class="register" @click="toggleDialog('register')">注册</a>
-                </li>
-                <el-dropdown v-if="username"  class="menu-username">
-                  <div class="dropdownDiv">
-                    <span class="span-username">用户 : {{ username }}</span>
-                    <i class="el-icon-arrow-down el-icon--right down"></i>
-                  </div>
-                  <el-dropdown-menu slot="dropdown" class="dropdown">
-                    <el-dropdown-item @click.native="logouts" class="dropdown-li">退出登录</el-dropdown-item>
-                    <el-dropdown-item class="dropdown-li" :class="{ active: isRouteActive('/per_information') }">
-                      <router-link class="dropdown-li" to="/per_information">个人信息</router-link>
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-  <div class="overlay" v-show="showDialog"></div>
-  <div class="loginOrRegisterContainer" v-show="showDialog"  >
-    <button class="close-btn" @click="closeDialog">关闭</button>
-    <login-or-register :showDialog="showDialog" :mode="dialogMode"></login-or-register>
-  </div>
-
-  <!-- 中间页面区 -->
-  <router-view  v-if="isRouterAlive"></router-view>
-
-
-  <!-- 底部栏 -->
-  <footer class="footer-area section-padding">
-    <div class="footer-widget">
-      <div class="container">
-        <div class="row">
-          <div class="col-xl-7 col-lg-9">
-            <div class="single-widget-home mb-5 mb-lg-0">
-              <h3 class="mb-4">我们的项目</h3>
-              <ul>
-                <li class="mb-2"><a href="#">项目1</a></li>
-                <li class="mb-2"><a href="#">项目1</a></li>
-                <li class="mb-2"><a href="#">项目1</a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="col-xl-3 offset-xl-2 col-lg-3">
-            <div class="single-widge-home">
-              <h3 class="mb-4">贡献者</h3>
-              <div class="feed">
-                <img src="/static/assets/images/feed1.jpg" alt="feed">
-                <img src="/static/assets/images/feed2.jpg" alt="feed">
-                <img src="/static/assets/images/feed3.jpg" alt="feed">
-                <img src="/static/assets/images/feed4.jpg" alt="feed">
+            <div class="col-lg-10">
+              <div class="custom-navbar">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="main-menu main-menu-light">
+                <ul class="menul">
+                  <li :class="{ active: isRouteActive('/') }">
+                    <router-link to="/">首页</router-link>
+                  </li>
+                  <li :class="{ active: isRouteActive('/codes') }">
+                    <router-link to="/codes">代码库</router-link>
+                  </li>
+                  <li :class="{ active: isRouteActive('/my_code') }">
+                    <router-link to="/my_code">我的代码</router-link>
+                  </li>
+                  <li :class="{ active: isRouteActive('/my_favorite') }">
+                    <router-link to="/my_favorite">我的收藏</router-link>
+                  </li>
+                  <li :class="{ active: isRouteActive('/ai_know') }">
+                    <router-link to="/ai_know">AI知道</router-link>
+                  </li>
+                  <li v-if="!username" class="menu-btn">
+                    <a class="login" @click="toggleDialog('login')">登录</a>
+                    <a class="register" @click="toggleDialog('register')">注册</a>
+                  </li>
+                  <el-dropdown v-if="username" class="menu-username">
+                    <div class="dropdownDiv">
+                      <span class="span-username">用户 : {{ username }}</span>
+                      <i class="el-icon-arrow-down el-icon--right down"></i>
+                    </div>
+                    <el-dropdown-menu slot="dropdown" class="dropdown">
+                      <el-dropdown-item class="dropdown-li" @click.native="logouts">退出登录</el-dropdown-item>
+                      <el-dropdown-item :class="{ active: isRouteActive('/per_information') }" class="dropdown-li">
+                        <router-link class="dropdown-li" to="/per_information">个人信息</router-link>
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </header>
+    <div v-show="showDialog" class="overlay"></div>
+    <div v-show="showDialog" class="loginOrRegisterContainer">
+      <button class="close-btn" @click="closeDialog">关闭</button>
+      <login-or-register :mode="dialogMode" :showDialog="showDialog"></login-or-register>
     </div>
-    <div class="footer-copyright">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 col-md-6">
-            <span>
-              &copy;2024 Code_Snippet | 辽ICP备XXXXXXXX号-XX
-              <br/>
-              <i class="fa fa-heart-o" aria-hidden="true"></i>by
-              <a href="https://dluacm.cn" target="_blank">ACM项目部</a>
-            </span>
-          </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="social-icons">
-              <ul>
-                <li><a href="#"><i class="fa fa-github"></i></a></li>
-                <li><a href="#"><i class="fa fa-qq"></i></a></li>
-                <li><a href="#"><i class="fa fa-weixin"></i></a></li>
-                <li><a href="#"><i class="fa fa-weibo"></i></a></li>
-              </ul>
+
+    <!-- 中间页面区 -->
+    <router-view v-if="isRouterAlive"></router-view>
+
+
+    <!-- 底部栏 -->
+    <footer class="footer-area section-padding">
+      <div class="footer-widget">
+        <div class="container">
+          <div class="row">
+            <div class="col-xl-7 col-lg-9">
+              <div class="single-widget-home mb-5 mb-lg-0">
+                <h3 class="mb-4">我们的项目</h3>
+                <ul>
+                  <li class="mb-2"><a href="#"></a></li>
+                  <li class="mb-2"><a href="#"></a></li>
+                  <li class="mb-2"><a href="#"></a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xl-3 offset-xl-2 col-lg-3">
+              <div class="single-widge-home">
+                <h3 class="mb-4">贡献者</h3>
+                <div class="feed">
+                  <a href="https://github.com/yan931305137" target="_blank">
+                    <img alt="feed" src="https://avatars.githubusercontent.com/u/65098966?v=4"/>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </footer>
+      <div class="footer-copyright">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-md-6">
+            <span>
+              &copy;2024 Code_Snippet | 辽ICP备XXXXXXXX号-XX
+              <br/>
+              <i aria-hidden="true" class="fa fa-heart-o"></i>-by
+              <a href="https://dluacm.cn" style="color: #00afed" target="_blank">-ACM项目部-</a>
+            </span>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="social-icons">
+                <ul>
+                  <li><a href="https://github.com/dldlu" target="_blank"><i class="fa fa-github"></i></a></li>
+                  <li><a href="#"><i class="fa fa-qq"></i></a></li>
+                  <li><a href="#"><i class="fa fa-weixin"></i></a></li>
+                  <li><a href="#"><i class="fa fa-weibo"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
 
-<!--  右下角小功能-->
-  <div class="support" @click="">
+    <!--  右下角小功能-->
+    <div class="support" @click="">
       <i class="fa fa-qrcode black"></i>
-  </div>
-  <div class="scroll-to-top" v-show="isScrolled" @click="scrollToTop" >
+    </div>
+    <div v-show="isScrolled" class="scroll-to-top" @click="scrollToTop">
       <i class="fa fa-angle-up black"></i>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -174,7 +183,7 @@ export default {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
-     // 页面挂载后立即发送请求获取用户名
+    // 页面挂载后立即发送请求获取用户名
     async getInformation () {
       try {
         const res = await this.$api.GetInformation() // 发送GET请求至后端接口
@@ -249,11 +258,12 @@ export default {
 
 <style>
 .col-lg-10 {
-flex: 0 0 70%;
+  flex: 0 0 70%;
 }
-.logo-text{
+
+.logo-text {
   width: 80px;
-    color: #ffffff;
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {
@@ -261,10 +271,12 @@ flex: 0 0 70%;
 }
 
 ::-webkit-scrollbar {
-  width: 0 !important;height: 0;
+  width: 0 !important;
+  height: 0;
 }
-.support ,
-.scroll-to-top{
+
+.support,
+.scroll-to-top {
   position: fixed;
   bottom: 40px;
   right: 40px;
@@ -281,7 +293,8 @@ flex: 0 0 70%;
   padding: 10px;
   border-radius: 20px;
 }
-.support{
+
+.support {
   bottom: 90px;
 }
 
@@ -298,10 +311,12 @@ flex: 0 0 70%;
 .scroll-to-top {
   opacity: 1;
 }
-ul li{
+
+ul li {
   padding: 10px 0;
 }
-.menul li a{
+
+.menul li a {
   display: inline-block;
   width: 86px;
   height: 51px;
@@ -312,16 +327,19 @@ ul li{
   border-bottom: 2px solid white;
   background-color: rgba(119, 119, 119, 0.10);
 }
+
 .menul li:nth-child(-n+5):hover {
   background-color: rgba(119, 119, 119, 0.10);
 }
-.menu-btn{
-  margin-left: 50px!important;
-  margin-right: -50px!important;
+
+.menu-btn {
+  margin-left: 50px !important;
+  margin-right: -50px !important;
   cursor: pointer;
 }
+
 .register,
-.login{
+.login {
   display: flex;
   flex-direction: column;
   border-radius: 3px;
@@ -331,14 +349,16 @@ ul li{
   background-color: transparent;
   padding: 15px 30px;
 }
+
 .login:hover,
-.register:hover{
+.register:hover {
   background-color: #ff9902;
 }
 
-.black{
+.black {
   color: #000000;
 }
+
 .loginOrRegisterContainer {
   z-index: 999;
   position: fixed;
@@ -346,6 +366,7 @@ ul li{
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 .overlay {
   position: fixed;
   top: 0;
@@ -358,7 +379,7 @@ ul li{
 
 .close-btn {
   position: absolute;
-  border: 0.5px solid #dddddd; ;
+  border: 0.5px solid #dddddd;;
   background-color: transparent;
   color: #999999;
   cursor: pointer;
@@ -366,49 +387,52 @@ ul li{
   top: -30px;
   right: 0;
 }
-.close-btn:hover{
+
+.close-btn:hover {
   background-color: #ffffff;
 }
 
-.menu-username{
+.menu-username {
   width: 176px;
   color: #ffffff;
   cursor: pointer;
 }
 
 .dropdown {
-  margin-left: 120px!important;
-  margin-right: -50px!important;
-  margin-top: 20px!important;
+  margin-left: 120px !important;
+  margin-right: -50px !important;
+  margin-top: 20px !important;
   width: 140px;
   text-align: center;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-.dropdown-li{
-  color: #000000!important;
+
+.dropdown-li {
+  color: #000000 !important;
 }
-.span-username{
+
+.span-username {
   width: 110px; /* 设置固定宽度 */
   white-space: nowrap; /* 禁止换行 */
   overflow: hidden; /* 隐藏溢出部分 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
-.dropdownDiv{
+.dropdownDiv {
   text-align: center;
-  width: 150px!important;
-  margin-left: 80px!important;
-  margin-right: -80px!important;
-  margin-bottom: -15px!important;
+  width: 150px !important;
+  margin-left: 80px !important;
+  margin-right: -80px !important;
+  margin-bottom: -15px !important;
   display: inline-block;
 }
 
-.dropdownDiv:hover{
+.dropdownDiv:hover {
   background: rgba(221, 221, 221, 0.1);
 }
 
-.down{
+.down {
   line-height: 40px;
 }
 </style>

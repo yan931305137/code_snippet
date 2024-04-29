@@ -1,27 +1,39 @@
 <template>
   <div class="containers">
-    <div class="search-input" >
-      <el-input placeholder="请输入关键词搜索" v-model="searchInput">
+    <div class="search-input">
+      <el-input v-model="searchInput" placeholder="请输入关键词搜索">
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
     </div>
     <div class="search-container">
-        <div class="search-directory">
-          <h4>编程语言</h4>
-          <hr/>
-          <ul class="search-ul">
-            <el-checkbox-group v-model="checkList" @change="toSelection">
-              <el-checkbox class="checkbox-li" v-for="(language, index) in languages" :label="language.value" :key="index">{{language.name }}:({{getCount(language.value)}})</el-checkbox>
-            </el-checkbox-group>
-          </ul>
+      <div class="search-directory">
+        <h4>编程语言</h4>
+        <hr/>
+        <ul class="search-ul">
+          <el-checkbox-group v-model="checkList" @change="toSelection">
+            <el-checkbox v-for="(language, index) in languages" :key="index" :label="language.value"
+                         class="checkbox-li">{{ language.name }}:({{ getCount(language.value) }})
+            </el-checkbox>
+          </el-checkbox-group>
+        </ul>
       </div>
       <el-row>
-        <el-col :span="24" v-for="(card, index) in cards" :key="index">
-          <el-card class="el-card my-code-card" :body-style="{ padding: '0px' }">
-            <MonacoEditor class="monaco_code" ref="MonacoCode" v-model="card.content" :readOnly=true :language="card.category"></MonacoEditor>
+        <el-col v-for="(card, index) in cards" :key="index" :span="24">
+          <el-card :body-style="{ padding: '0px' }" class="el-card my-code-card">
+            <MonacoEditor
+              v-if="mdshow"
+              ref="MonacoCode"
+              :change-throttle="500"
+              :code="card.content"
+              :language="card.category"
+              :viewMode="true"
+              class="monaco_codes mecodes"
+              height="400px"
+              width="100%"
+            />
             <div style="padding: 14px;">
               <div class="bottom clearfix">
-                <div class="card-descriptions">{{card.description}}</div>
+                <div class="card-descriptions">{{ card.description }}</div>
                 <time class="time">{{ card.expire_time }}</time>
               </div>
             </div>
@@ -29,18 +41,26 @@
         </el-col>
       </el-row>
     </div>
+    <el-pagination
+      :total="1000"
+      background
+      class="pagination"
+      layout="prev, pager, next">
+    </el-pagination>
   </div>
 </template>
 
 <script>
 import MonacoEditor from '../component/MonacoEditor.vue'
 import {Message} from 'element-ui'
+
 export default {
   components: {
     MonacoEditor
   },
   data () {
     return {
+      mdshow: true,
       searchInput: '',
       cards: [],
       searchTerm: '',
@@ -131,12 +151,13 @@ export default {
         Message.error(err)
       }
     },
-    async  getCodes () {
+    async getCodes () {
       try {
         let res = await this.$api.GetCodes()
         if (res.data.code !== 0) {
           Message.error(res.data.msg)
         } else if (res.data.code === 0 && res.data.data !== null) {
+          this.cards = []
           const codes = []
           this.languageCount = [0, 0, 0, 0, 0, 0]
           for (let i = 0; i < res.data.data.length; i++) {
@@ -175,11 +196,15 @@ export default {
       }
     },
     toSelection () {
-      if (this.checkList.length !== 0) {
-        this.filterCards()
-      } else {
-        this.getCodes()
-      }
+      this.mdshow = false
+      this.$nextTick(() => {
+        if (this.checkList.length !== 0) {
+          this.filterCards()
+        } else {
+          this.getCodes()
+        }
+        this.mdshow = true
+      })
     },
     filterCards () {
       const codeStorage = JSON.parse(localStorage.getItem('codes'))
@@ -206,7 +231,7 @@ export default {
 </script>
 
 <style>
-.search-input{
+.search-input {
   margin-top: 15px;
   width: 100%;
 }
@@ -225,10 +250,10 @@ export default {
   height: 650px;
 }
 
-.card-descriptions{
+.card-descriptions {
   width: 820px !important;
   line-height: 20px;
-  height:20px;
+  height: 20px;
   white-space: nowrap; /* 禁止换行 */
   overflow: hidden; /* 隐藏溢出部分 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
@@ -238,20 +263,27 @@ export default {
   border: #dddddd 0.5px solid;
   margin-left: 10px;
 }
-.search-ul{
+
+.search-ul {
   height: 570px;
   overflow-y: auto;
 }
 
-.checkbox-li{
+.checkbox-li {
   width: 100%;
   padding-left: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
-  border-bottom:0.5px dashed #dddddd;
+  border-bottom: 0.5px dashed #dddddd;
   margin-bottom: 10px;
 }
-.checkbox-li:hover{
+
+.checkbox-li:hover {
   background-color: #dddddd;
+}
+
+.pagination {
+  display: block;
+  margin: 20px 0 0 690px;
 }
 </style>

@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/pages/Home'
-import Codes from '@/pages/Codes'
-import MyCode from '@/pages/MyCode'
-import MyFavorite from '@/pages/MyFavorite'
-import AiKnow from '@/pages/Aiknow'
-import PerInformation from '@/pages/PerInformation'
+import Home from '../pages/Home'
+import Codes from '../pages/Codes'
+import MyCode from '../pages/MyCode'
+import MyFavorite from '../pages/MyFavorite'
+import AiKnow from '../pages/AiKnow.vue'
+import PerInformation from '../pages/PerInformation'
 
 Vue.use(Router)
 
