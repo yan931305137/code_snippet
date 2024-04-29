@@ -40,7 +40,7 @@ export default {
     }
   },
   watch: {
-    editorValue: function (newNum, oldNum) {
+    editorValue: function (newNum) {
       // 修改调用者传入的值
       this.$emit('update:content', newNum)
     }

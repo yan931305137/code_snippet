@@ -3,28 +3,30 @@
     <span class="head">个人信息</span>
     <hr class="hr"/>
     <div>
-      <el-card style="width: 1080px" shadow="hover">
+      <el-card shadow="hover" style="width: 1080px">
         <el-form size="small">
-          <el-avatar v-if="this.$parent.avatar" v-show="avatarShow"  shape="square" :size="90" class="avatar-img" :src="this.$parent.avatar"></el-avatar>
-          <el-avatar v-else :size="90" shape="square"  class="avatar-img" src=""></el-avatar>
+          <el-avatar v-if="this.$parent.avatar" :size="90" :src="this.$parent.avatar" class="avatar-img"
+                     shape="square"></el-avatar>
+          <el-avatar v-else :size="90" class="avatar-img" shape="square" src=""></el-avatar>
           <el-upload
-            class="avatar-uploader"
             ref="upload"
-            :show-file-list="true"
             :action="this.URL"
+            :auto-upload="false"
             :headers="uploadHeaders"
-            :multiple="false"
             :limit="1"
-            :auto-upload="false">
+            :multiple="false"
+            :show-file-list="true"
+            class="avatar-uploader">
             <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
             <el-button class="upload-btn" size="small" type="success" @click="action">上传到服务器</el-button>
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
-          <el-form-item label="用户名" class="informationLabel" style="margin-top: -370px">
-            <el-input v-model="username" disabled autocomplete="off" class="input-wide" style="margin-left: 45px"></el-input>
+          <el-form-item class="informationLabel" label="用户名" style="margin-top: -370px">
+            <el-input v-model="username" autocomplete="off" class="input-wide" disabled
+                      style="margin-left: 45px"></el-input>
           </el-form-item>
-          <el-form-item label="性别"  class="informationLabel">
-            <el-select v-model="gender" placeholder="请选择您的性别" class="input-wide">
+          <el-form-item class="informationLabel" label="性别">
+            <el-select v-model="gender" class="input-wide" placeholder="请选择您的性别">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -33,20 +35,20 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="邮箱"  class="informationLabel">
+          <el-form-item class="informationLabel" label="邮箱">
             <el-input v-model="email" class="input-wide"></el-input>
           </el-form-item>
-          <el-form-item label="电话"  class="informationLabel">
+          <el-form-item class="informationLabel" label="电话">
             <el-input v-model="phone" class="input-wide"></el-input>
           </el-form-item>
-          <el-form-item label="出生日期"  class="informationLabel">
+          <el-form-item class="informationLabel" label="出生日期">
             <el-input v-model="brithday" class="input-wide" style="margin-left: 30px"></el-input>
           </el-form-item>
-          <el-form-item label="地址" class="informationLabel">
-            <el-input type="textarea" v-model="address" class="input-wide"></el-input>
+          <el-form-item class="informationLabel" label="地址">
+            <el-input v-model="address" class="input-wide" type="textarea"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="save" class="save-btn">保 存 修 改</el-button>
+            <el-button class="save-btn" type="primary" @click="save">保 存 修 改</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -121,10 +123,7 @@ export default {
     },
     action () {
       this.$refs.upload.submit()
-      this.avatarShow = false
-      this.$nextTick(function () {
-        this.avatarShow = true
-      })
+      location.reload()
     }
   }
 }
@@ -134,9 +133,11 @@ export default {
 .avatar-img {
   margin: 20px -11px -1px 43px;
 }
-.el-upload__tip{
+
+.el-upload__tip {
   margin-left: -15px;
 }
+
 .avatar-uploader {
   height: 300px;
   margin: 0 0 0 50px;

@@ -1,70 +1,105 @@
 <template>
-  <div class="main-monaco" ref="main"></div>
+  <div ref="monacoEditorRef" :style="style"></div>
 </template>
 
 <script>
 import * as monaco from 'monaco-editor'
-// 引入自定义提示词
+import {debounce} from 'lodash'
 import pythonSuggestion from './js/python-suggest.js'
 import goSuggestion from './js/go-suggestion.js'
+import {format} from 'sql-formatter'
+
 const customLanguage = {
   'go': goSuggestion,
   'python': pythonSuggestion
 }
 export default {
+  name: 'MonacoEditor',
+  props: {
+    width: {type: [String, Number], default: '100%'},
+    height: {type: [String, Number], default: '100%'},
+    code: {type: String, default: '// code \n'},
+    language: {type: String, default: 'text'},
+    theme: {type: String, default: 'vs-dark'}, // vs, hc-black
+    options: {type: Object, default: () => ({})},
+    highlighted: {
+      type: Array,
+      default: () => [
+        {
+          number: 0,
+          class: ''
+        }
+      ]
+    },
+    requireConfig: {
+      type: Object,
+      default: () => {
+        return {
+          url: 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.1/require.min.js',
+          paths: {
+            vs: 'https://as.alipayobjects.com/g/cicada/monaco-editor-mirror/0.6.1/min/vs'
+          }
+        }
+      }
+    },
+    changeThrottle: {type: Number, default: 0},
+    viewMode: {type: Boolean, default: false}
+  },
   data () {
     return {
-      MonacoEditor: null
+      editor: null,
+      defaults: {
+        fontSize: 16, // 字体大小
+        autoIndent: true, // 自动布局 aviator
+        lineNumbers: 'on',
+        automaticLayout: true, // 自动布局
+        SeverityLevel: 'warning',
+        selectOnLineNumbers: true,
+        roundedSelection: false,
+        cursorStyle: 'line',
+        glyphMargin: true,
+        scrollBeyondLastLine: false
+      }
     }
   },
-  props: {
-    language: '',
-    value: '',
-    readOnly: Boolean
-  },
-  created () {
-
-  },
-  watch: {
-    value (newCode) {
-      this.monacoEditor.setValue(newCode)
-    }
+  destroyed () {
+    this.destroyMonaco()
   },
   mounted () {
-    this.$nextTick(() => {
-      this.initMonaco()
-      // 自定义提示词
-      this.initCustomLanguage()
-    })
+    this.fetchEditor()
+    this.initCustomLanguage()
+  },
+  computed: {
+    style () {
+      const {width, height} = this
+      const fixedWidth = width.toString().indexOf('%') !== -1 ? width : `${width}px`
+      const fixedHeight = height.toString().indexOf('%') !== -1 ? height : `${height}px`
+      return {
+        width: fixedWidth,
+        height: fixedHeight
+      }
+    },
+    editorOptions () {
+      return Object.assign({}, this.defaults, this.options, {
+        value: this.code,
+        language: this.language,
+        theme: this.theme,
+        readOnly: this.viewMode
+      })
+    }
+  },
+  watch: {
+    language () {
+      monaco.editor.setModelLanguage(this.editor.getModel(), this.language)
+    },
+    codes: {
+      handler (val) {
+        this.editor.setValue(val)
+      },
+      deep: true
+    }
   },
   methods: {
-    initMonaco () {
-      this.monacoEditor = monaco.editor.create(this.$refs.main, {
-        theme: 'vs-dark', // 主题
-        value: this.value, // 默认显示的值
-        language: this.language,
-        folding: true, // 是否折叠
-        foldingHighlight: true, // 折叠等高线
-        foldingStrategy: 'auto', // 折叠方式
-        showFoldingControls: 'always', // 是否一直显示折叠
-        disableLayerHinting: true, // 等宽优化
-        emptySelectionClipboard: false, // 空选择剪切板
-        selectionClipboard: false, // 选择剪切板
-        automaticLayout: true, // 自动布局
-        codeLens: true, // 代码镜头
-        scrollBeyondLastLine: false, // 滚动完最后一行后再滚动一屏幕
-        colorDecorators: true, // 颜色装饰器
-        accessibilitySupport: 'on', // 辅助功能支持"auto" | "off" | "on"
-        lineNumbers: 'on', // 行号 取值： "on" | "off" | "relative" | "interval" | function
-        lineNumbersMinChars: 4, // 行号最小字符   number
-        enableSplitViewResizing: false,
-        readOnly: this.readOnly, // 是否只读  取值 true | false
-        fontSize: 18
-      })
-      this.monacoEditor.onDidChangeModelContent(() => {
-        this.$emit('change', this.monacoEditor.getValue())
-      })
-    },
     initCustomLanguage () {
       let language = this.language
       if (!(Object.keys(customLanguage)).includes(this.language)) {
@@ -80,19 +115,68 @@ export default {
               insertText: keyword
             }
           })
-          return { suggestions: suggestions }
+          return {suggestions: suggestions}
         }
       })
+    },
+    editorHasLoaded () {
+      this.editor.onDidChangeModelContent(event => this.codeChangeHandler(this.editor, event))
+      this.$emit('mountedEditor', this.editor)
+    },
+    codeChangeHandler () {
+      if (this.codeChangeEmitter) {
+        this.codeChangeEmitter(this.editor)
+      } else {
+        this.codeChangeEmitter = debounce(editor => {
+          this.$emit('codeChange', editor)
+        }, this.changeThrottle)
+        this.codeChangeEmitter(this.editor)
+      }
+    },
+    fetchEditor () {
+      this.editor = monaco.editor.create(this.$refs.monacoEditorRef, this.editorOptions)
+      this.editorHasLoaded(this.editor)
+
+      /**
+       * 添加右键格式化菜单
+       */
+        // 用于控制切换该菜单键的显示
+      const shouldShowSqlRunnerAction = this.editor.createContextKey(
+          'shouldShowSqlRunnerAction',
+          false
+        )
+      // 前面已经定义了 editor
+      // 添加 action
+      this.editor.addAction({
+        // id
+        id: 'format',
+        // 该菜单键显示文本
+        label: 'Format',
+        // 控制该菜单键显示
+        precondition: 'shouldShowSqlRunnerAction',
+        // 该菜单键位置
+        contextMenuGroupId: 'navigation',
+        contextMenuOrder: 1.5,
+        // 点击该菜单键后运行
+        run: (event) => {
+          // 格式化代码
+          this.editor.setValue(format(this.editor.getValue()))
+        }
+      })
+      // 显示
+      shouldShowSqlRunnerAction.set(true)
+
+      // 监测窗口变化
+      window.addEventListener('resize', this.editor.layout())
+    },
+    destroyMonaco () {
+      if (typeof this.editor !== 'undefined') {
+        this.editor.dispose()
+        // 监测窗口变化
+        window.removeEventListener('resize', this.editor.layout(), true)
+      }
     }
   }
 }
 </script>
 
-<style>
-.main-monaco{
-  height:calc(100vh - 500px);
-  border: #cccccc 0.5px solid;
-  overflow: hidden !important;
-  width: 100%;
-}
-</style>

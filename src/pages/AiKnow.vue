@@ -52,7 +52,7 @@
             :autosize="{ minRows: 3, maxRows: 3 }"
             ref="chatInput"
           ></el-input>
-          <el-button class="sbutton" @click="sendMessage(userInput)" type="primary">发送</el-button>
+          <el-button class="sbutton" @click="sendMessage" type="primary">发送</el-button>
         </div>
       </el-main>
     </el-container>
@@ -160,16 +160,14 @@ export default {
       try {
         let res = await this.$api.getAiKnow()
         if (res.data.code === 0) {
-          // eslint-disable-next-line standard/object-curly-even-spacing
-          this.historyMessages = res.data.data.map(item => ({Id: item.Id, Content: item.Content }))
+          this.historyMessages = res.data.data.map(item => ({ Id: item.Id, Content: item.Content }))
           this.selectHistory(this.selectedHistoryIndex)
           this.$nextTick(this.scrollToBottom)
         } else {
           Message.error(res.data.msg)
         }
       } catch (error) {
-        // eslint-disable-next-line standard/object-curly-even-spacing
-        this.historyMessages = [{Id: -1, Content: '新对话' }]
+        this.historyMessages = [{ Id: -1, Content: '新对话' }]
       }
       for (let i = 0; i < this.historyMessages.length; i++) {
         const data = JSON.parse(`[` + this.historyMessages[i].Content + `]`)
@@ -191,11 +189,19 @@ export default {
             content: this.userInput
           })
           let res = await this.$api.putAiKnow(this.userInput, this.historyMessages[this.selectedHistoryIndex].Id)
-          this.messages.push({
-            isTyping: null,
-            isUser: false,
-            content: res.data.data
-          })
+          if (res.data.data !== null) {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: res.data.data
+            })
+          } else {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: res.data.msg
+            })
+          }
           if (this.historyMessages[this.selectedHistoryIndex].Id === -1) {
             location.reload()
           }

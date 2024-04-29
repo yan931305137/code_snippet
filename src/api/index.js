@@ -109,15 +109,39 @@ export default {
       data
     })
   },
+  PostLike (CodeId) {
+    let data = {CodeId}
+    return request({
+      url: '/code/PostLike',
+      method: 'post',
+      data
+    })
+  },
+  PostCollect (CodeId) {
+    let data = {CodeId}
+    return request({
+      url: '/code/PostCollect',
+      method: 'post',
+      data
+    })
+  },
   GetTopSlider () {
     return request({
       url: '/top/slider',
       method: 'get'
     })
   },
-  GetTopHot () {
+  GetTopHot (value) {
+    let url
+    if (value === 1) {
+      url = '/top/hot'
+    } else if (value === 2) {
+      url = '/top/new'
+    } else if (value === 3) {
+      url = '/top/focus'
+    }
     return request({
-      url: '/top/hot',
+      url: url,
       method: 'get'
     })
   },
