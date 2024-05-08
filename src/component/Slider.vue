@@ -15,7 +15,19 @@
             width="100%"
           />
           <div>
+          <MonacoEditor
+            ref="MonacoCode"
+            :change-throttle="500"
+            :code="card.content"
+            :language="card.category"
+            :viewMode="true"
+            class="mecodes"
+            height="100%"
+            width="100%"
+          />
+          <div>
             <div class="bottom clearfixs">
+              <div class="card-descriptions">{{ card.description }}</div>
               <div class="card-descriptions">{{ card.description }}</div>
               <time class="time">{{ card.expire_time }}</time>
             </div>
@@ -24,14 +36,18 @@
         <i class="slideButton el-icon-arrow-right" style="margin-left: -80px" @click="slideNext"></i>
       </slideritem>
       <div v-else slot="loading" class="loading">loading...</div>
+      <div v-else slot="loading" class="loading">loading...</div>
     </slider>
   </div>
 </template>
 
+
 <script>
+import {slider, slideritem} from 'vue-concise-slider'
 import {slider, slideritem} from 'vue-concise-slider'
 import MonacoEditor from '../component/MonacoEditor.vue'
 import {Message} from 'element-ui'
+
 
 export default {
   mounted () {
@@ -47,7 +63,16 @@ export default {
         automaticLayout: false
       },
       dataNotNull: true,
+      options: {
+        selectOnLineNumbers: true,
+        roundedSelection: false,
+        readOnly: true,
+        cursorStyle: 'line',
+        automaticLayout: false
+      },
+      dataNotNull: true,
       cards: [],
+      option: {
       option: {
         currentPage: 0, // 当前页码
         thresholdDistance: 500, // 滑动判定距离
@@ -72,9 +97,18 @@ export default {
     slidePre () {
       this.$refs.slider.$emit('slidePre')
     },
+    slideNext () {
+      this.$refs.slider.$emit('slideNext')
+    },
+    slidePre () {
+      this.$refs.slider.$emit('slidePre')
+    },
     async getMyCode () {
       try {
         let res = await this.$api.GetTopSlider()
+        if (res.data.data === null) {
+          this.dataNotNull = false
+        }
         if (res.data.data === null) {
           this.dataNotNull = false
         }
@@ -104,16 +138,24 @@ export default {
 
 <style>
 .mecodes {
+.mecodes {
   height: 400px !important;
 }
+
+.slide-item > * {
 
 .slide-item > * {
   text-align: left;
 }
 
 .card-descriptions {
+
+.card-descriptions {
   font-size: 15px;
 }
+
+.clearfixs {
+  height: 20px !important;
 
 .clearfixs {
   height: 20px !important;
@@ -122,9 +164,28 @@ export default {
 .my-code-cards {
   height: 500px; /* 设置足够高的高度 */
   overflow-y: auto; /* 显示垂直滚动条 */
+
+.my-code-cards {
+  height: 500px; /* 设置足够高的高度 */
+  overflow-y: auto; /* 显示垂直滚动条 */
   width: 1100px !important;
 }
 
+.slider-pagination-bullet-active {
+  background-color: #eeeeee !important;
+}
+
+.slideButton {
+  color: rgba(238, 238, 238, 0.5);
+  background-color: rgba(238, 238, 238, 0.3);
+  border: none;
+  z-index: 4;
+  display: flex;
+  float: right;
+  height: 40px;
+  width: 40px;
+  top: 230px;
+}
 .slider-pagination-bullet-active {
   background-color: #eeeeee !important;
 }

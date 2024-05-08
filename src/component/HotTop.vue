@@ -30,6 +30,10 @@
               </div>
               <button v-show="isShow" class="topButton" type="button" @click="like(card.id)">
                 <div class="inlineTop">
+                <div>{{ card.look }}</div>
+              </div>
+              <button v-show="isShow" class="topButton" type="button" @click="like(card.id)">
+                <div class="inlineTop">
                     <span aria-label="like" role="img"><svg aria-hidden="true" data-icon="like" fill="currentColor"
                                                             focusable="false" height="1em" viewBox="64 64 896 896"
                                                             width="1em"><path
@@ -39,10 +43,21 @@
               </button>
               <button v-show="isShow" class="topButton" type="button" @click="collect(card.id)">
                 <div class="inlineTop">
+                  <div>{{ card.like }}</div>
+                </div>
+              </button>
+              <button v-show="isShow" class="topButton" type="button" @click="collect(card.id)">
+                <div class="inlineTop">
                     <span aria-label="star" role="img"><svg aria-hidden="true" data-icon="star" fill="currentColor"
                                                             focusable="false" height="1em" viewBox="64 64 896 896"
                                                             width="1em"><path
                       d="M908.1 353.1l-253.9-36.9L540.7 86.1c-3.1-6.3-8.2-11.4-14.5-14.5-15.8-7.8-35-1.3-42.9 14.5L369.8 316.2l-253.9 36.9c-7 1-13.4 4.3-18.3 9.3a32.05 32.05 0 00.6 45.3l183.7 179.1-43.4 252.9a31.95 31.95 0 0046.4 33.7L512 754l227.1 119.4c6.2 3.3 13.4 4.4 20.3 3.2 17.4-3 29.1-19.5 26.1-36.9l-43.4-252.9 183.7-179.1c5-4.9 8.3-11.3 9.3-18.3 2.7-17.5-9.5-33.7-27-36.3zM664.8 561.6l36.1 210.3L512 672.7 323.1 772l36.1-210.3-152.8-149L417.6 382 512 190.7 606.4 382l211.2 30.7-152.8 148.9z"></path></svg></span>
+                  <div>{{ card.collect }}</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
                   <div>{{ card.collect }}</div>
                 </div>
               </button>
@@ -62,6 +77,7 @@ export default {
   data () {
     return {
       isShow: true,
+      isShow: true,
       cards: [],
       currentDate: new Date()
     }
@@ -69,11 +85,68 @@ export default {
   props: {
     top: {type: Number, default: 0}
   },
+  props: {
+    top: {type: Number, default: 0}
+  },
   mounted () {
+    this.getTop()
     this.getTop()
   },
   components: {MonacoEditor},
   methods: {
+    async like (codeId) {
+      let res = await this.$api.PostLike(codeId)
+      if (res.data.code !== 401) {
+        if (res.data.code !== 0) {
+          Message.error(res.data.msg)
+        } else if (res.data.code === 0) {
+          this.isShow = false
+          this.cards = []
+          await this.getTop()
+          this.$nextTick(function () {
+            this.isShow = true
+          })
+          Message.success(res.data.msg)
+        }
+      }
+    },
+    async collect (codeId) {
+      let res = await this.$api.PostCollect(codeId)
+      if (res.data.code !== 401) {
+        if (res.data.code !== 0) {
+          Message.error(res.data.msg)
+        } else if (res.data.code === 0) {
+          this.isShow = false
+          this.cards = []
+          await this.getTop()
+          this.$nextTick(function () {
+            this.isShow = true
+          })
+          Message.success(res.data.msg)
+        }
+      }
+    },
+    async getTop () {
+      let res = await this.$api.GetTopHot(this.top)
+      if (res.data.code !== 0) {
+        Message.error(res.data.msg)
+      } else if (res.data.code === 0 && res.data.data !== null) {
+        for (let i = 0; i < res.data.data.length; i++) {
+          this.cards.push({
+            id: res.data.data[i].CodeID,
+            content: res.data.data[i].Content,
+            category: res.data.data[i].Category,
+            description: res.data.data[i].Description,
+            title: res.data.data[i].Title,
+            tags: res.data.data[i].Tags,
+            expire_time: res.data.data[i].ExpireTime,
+            authority: res.data.data[i].Authority,
+            look: res.data.data[i].Look,
+            like: res.data.data[i].Like,
+            collect: res.data.data[i].Collect,
+            code_password: res.data.data[i].CodePassword
+          })
+        }
     async like (codeId) {
       let res = await this.$api.PostLike(codeId)
       if (res.data.code !== 401) {
@@ -148,6 +221,8 @@ export default {
 }
 
 .topCategory {
+
+.topCategory {
   height: 20px;
   line-height: 16px;
   font-size: 12px;
@@ -155,17 +230,24 @@ export default {
 }
 
 .inlineTop > * {
+
+.inlineTop > * {
   display: inline-block;
 }
+
+.topFoot {
 
 .topFoot {
   float: right;
 }
 
 .topFoot > * {
+
+.topFoot > * {
   margin-left: 10px;
 }
 
+.topButton {
 .topButton {
   cursor: pointer;
   border: none;
@@ -173,6 +255,8 @@ export default {
   border-radius: 10px;
   padding: 0 10px;
 }
+
+.topButton:hover {
 
 .topButton:hover {
   background-color: rgba(204, 204, 204, 0.5);

@@ -205,6 +205,19 @@ export default {
               content: res.data.msg
             })
           }
+          if (res.data.data !== null) {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: res.data.data
+            })
+          } else {
+            this.messages.push({
+              isTyping: null,
+              isUser: false,
+              content: res.data.msg
+            })
+          }
           if (this.historyMessages[this.selectedHistoryIndex].Id === -1) {
             location.reload()
           }

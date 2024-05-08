@@ -6,7 +6,9 @@
       <span>添加代码</span>
       <div class="select">
         <el-select v-model="this.category" clearable placeholder="纯文本" @change="categoryChange">
+        <el-select v-model="this.category" clearable placeholder="纯文本" @change="categoryChange">
           <el-option
+            v-for="item in option"
             v-for="item in option"
             :key="item.label"
             :label="item.label"
@@ -24,25 +26,42 @@
         width="100%"
         @codeChange="codeChange"
       />
+      <MonacoEditor
+        ref="MonacoCode"
+        :change-throttle="500"
+        :code="this.content"
+        :language="this.category"
+        class="monaco_codes mecodes monaco-ed"
+        height="400px"
+        width="100%"
+        @codeChange="codeChange"
+      />
     </div>
     <div class="md-container">
       <el-collapse>
         <el-collapse-item class="el-collapse-item" title="更多设置">
+        <el-collapse-item class="el-collapse-item" title="更多设置">
           <div class="input-row">
+            <el-input v-model="title" class="input-item" placeholder="最大40个字">
             <el-input v-model="title" class="input-item" placeholder="最大40个字">
               <template slot="prepend">标题</template>
             </el-input>
             <el-input v-model="tags" class="input-item" placeholder="支持自定义标签">
+            <el-input v-model="tags" class="input-item" placeholder="支持自定义标签">
               <template slot="prepend">标签</template>
             </el-input>
+            <el-input v-model="expire_time" class="input-item" placeholder="留空默认永久">
             <el-input v-model="expire_time" class="input-item" placeholder="留空默认永久">
               <template slot="prepend">过期时间</template>
             </el-input>
           </div>
           <MdEditor ref="childRef" v-model="this.description" class="md_editor"></MdEditor>
+          <MdEditor ref="childRef" v-model="this.description" class="md_editor"></MdEditor>
         </el-collapse-item>
       </el-collapse>
       <div class="button">
+        <el-button @click="this.authority = 1">公开</el-button>
+        <el-button @click="this.authority = 2">私人</el-button>
         <el-button @click="this.authority = 1">公开</el-button>
         <el-button @click="this.authority = 2">私人</el-button>
         <el-button @click="encryption">加密</el-button>
@@ -51,16 +70,21 @@
       <el-dialog
         :close-on-click-modal="false"
         :visible.sync="dialogVisible"
+        :close-on-click-modal="false"
+        :visible.sync="dialogVisible"
         class="dialog"
         title="输入密码"
       >
         <el-form>
+        <el-form>
           <el-form-item label="密码" prop="password">
+            <el-input v-model="newpassword" type="password"></el-input>
             <el-input v-model="newpassword" type="password"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirm(newpassword)">确定</el-button>
           <el-button type="primary" @click="confirm(newpassword)">确定</el-button>
         </div>
       </el-dialog>
@@ -127,6 +151,8 @@ export default {
     return {
       newpassword: '',
       newcontent: '',
+      newpassword: '',
+      newcontent: '',
       dialogVisible: false,
       isShow: true,
       cards: [],
@@ -134,11 +160,13 @@ export default {
       category: '',
       content: '',
       obcontent: '',
+      obcontent: '',
       title: '',
       tags: '',
       expire_time: '',
       description: '',
       code_password: '',
+      option: [{
       option: [{
         value: '0',
         label: 'text'
@@ -158,6 +186,7 @@ export default {
         value: '5',
         label: 'sql'
       }]
+      }]
     }
   },
   methods: {
@@ -166,9 +195,13 @@ export default {
     },
     confirm (value) {
       this.dialogVisible = false
+    confirm (value) {
+      this.dialogVisible = false
       // 在这里可以继续进行加密操作，使用用户输入的密码
       this.code_password = value
+      this.code_password = value
       // 调用加密方法
+      this.authority = 3
       this.authority = 3
       // 关闭对话框
     },
@@ -205,7 +238,11 @@ export default {
     codeChange (value) {
       this.content = value.getValue()
     },
+    codeChange (value) {
+      this.content = value.getValue()
+    },
     async code_submit () {
+      console.log(this.obcontent)
       console.log(this.obcontent)
       if (this.content.length !== 0) {
         let res = await this.$api.PostCode(
@@ -259,6 +296,7 @@ export default {
   margin-top: 20px;
 }
 
+.select {
 .select {
   float: right;
   margin-left: auto;
@@ -330,7 +368,10 @@ export default {
 }
 
 .card-description {
+
+.card-description {
   line-height: 20px;
+  height: 20px;
   height: 20px;
   width: 1000px; /* 设置固定宽度 */
   white-space: nowrap; /* 禁止换行 */
@@ -338,14 +379,25 @@ export default {
   text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
+
 .my-code-card {
   cursor: pointer !important;
 }
 
 .dialog {
+
+.dialog {
   width: 800px;
   height: 500px;
   margin: auto;
+}
+
+.monaco_codes {
+  margin-top: 20px;
+}
+
+.monaco-ed .monaco-editor .view-lines {
+  cursor: text !important;
 }
 
 .monaco_codes {

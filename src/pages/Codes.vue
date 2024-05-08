@@ -2,10 +2,22 @@
   <div class="containers">
     <div class="search-input">
       <el-input v-model="searchInput" placeholder="请输入关键词搜索">
+    <div class="search-input">
+      <el-input v-model="searchInput" placeholder="请输入关键词搜索">
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
     </div>
     <div class="search-container">
+      <div class="search-directory">
+        <h4>编程语言</h4>
+        <hr/>
+        <ul class="search-ul">
+          <el-checkbox-group v-model="checkList" @change="toSelection">
+            <el-checkbox v-for="(language, index) in languages" :key="index" :label="language.value"
+                         class="checkbox-li">{{ language.name }}:({{ getCount(language.value) }})
+            </el-checkbox>
+          </el-checkbox-group>
+        </ul>
       <div class="search-directory">
         <h4>编程语言</h4>
         <hr/>
@@ -34,6 +46,7 @@
             <div style="padding: 14px;">
               <div class="bottom clearfix">
                 <div class="card-descriptions">{{ card.description }}</div>
+                <div class="card-descriptions">{{ card.description }}</div>
                 <time class="time">{{ card.expire_time }}</time>
               </div>
             </div>
@@ -53,6 +66,7 @@
 <script>
 import MonacoEditor from '../component/MonacoEditor.vue'
 import {Message} from 'element-ui'
+
 
 export default {
   components: {
@@ -152,6 +166,7 @@ export default {
       }
     },
     async getCodes () {
+    async getCodes () {
       try {
         let res = await this.$api.GetCodes()
         if (res.data.code !== 0) {
@@ -232,6 +247,7 @@ export default {
 
 <style>
 .search-input {
+.search-input {
   margin-top: 15px;
   width: 100%;
 }
@@ -251,8 +267,10 @@ export default {
 }
 
 .card-descriptions {
+.card-descriptions {
   width: 820px !important;
   line-height: 20px;
+  height: 20px;
   height: 20px;
   white-space: nowrap; /* 禁止换行 */
   overflow: hidden; /* 隐藏溢出部分 */
@@ -265,18 +283,24 @@ export default {
 }
 
 .search-ul {
+
+.search-ul {
   height: 570px;
   overflow-y: auto;
 }
 
+.checkbox-li {
 .checkbox-li {
   width: 100%;
   padding-left: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
   border-bottom: 0.5px dashed #dddddd;
+  border-bottom: 0.5px dashed #dddddd;
   margin-bottom: 10px;
 }
+
+.checkbox-li:hover {
 
 .checkbox-li:hover {
   background-color: #dddddd;
